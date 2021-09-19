@@ -100,11 +100,18 @@ class Clara():
         if random.random() > self._epsilon:
             new_y = np.random.rand(*new_y.shape)
 
+#        option = np.argmax(new_y[:,:,6:], axis=2)
+#        for city in self._last_state['player'].cities.values():
+#            for city_tile in city.citytiles:
+#                i, j = city_tile.pos.x, city_tile.pos.y
+#                idx = option[i,j]+6
+#                old_y[i, j][idx] = reward[i, j]
+
         option = np.argmax(new_y[:,:,0:6], axis=2)
         for unit in self._last_state['player'].units:
             i, j = unit.pos.x, unit.pos.y
-            o = option[i, j]
-            old_y[i, j][o] = reward[i, j]
+            idx = option[i, j]
+            old_y[i, j][idx] = reward[i, j]
 
         old_y = new_y + self._lr * old_y
         self._model.fit(old_x, old_y)
@@ -155,15 +162,17 @@ class Clara():
 
         actions = []
 
-        option = np.argmax(y[:,:,0:6], axis=2)
+        best_options_map = np.argmax(y[:,:,0:6], axis=2)
+        options = [act for act in self.ACTIONS if act[0]=='worker']
         for unit in player.units:
-            idx = option[unit.pos.y, unit.pos.x]
-            actions.append(self.ACTIONS[idx][1](unit))
+            idx = best_options_map[unit.pos.y, unit.pos.x]
+            actions.append(options[idx][1](unit))
 
-        option = np.argmax(y[:,:,6:], axis=2)
+        best_options_map = np.argmax(y[:,:,6:], axis=2)
+        options = [act for act in self.ACTIONS if act[0]=='city']
         for city in player.cities.values():
             for city_tile in city.citytiles:
-                idx = option[city_tile.pos.y, city_tile.pos.x]
-                actions.append(self.ACTIONS[idx][1](unit))
+                idx = best_options_map[city_tile.pos.y, city_tile.pos.x]
+                actions.append(options[idx][1](city_tile))
 
         return actions
