@@ -13,17 +13,17 @@ class Clara():
 
 
     ACTIONS = [
-               ('move north',   lambda x: x.move(DIRECTIONS.NORTH)),
-               ('move west',    lambda x: x.move(DIRECTIONS.WEST)),
-               ('move south',   lambda x: x.move(DIRECTIONS.SOUTH)),
-               ('move east',    lambda x: x.move(DIRECTIONS.EAST)),
-               ('build city',   lambda x: x.buid_city()),
-               ('pillage',      lambda x: x.pillage()),
-               ('build_worker', lambda x: x.build_worker()),
-               ('research',     lambda x: x.research())
+               ('worker', lambda x: x.move(DIRECTIONS.NORTH)),
+               ('worker', lambda x: x.move(DIRECTIONS.WEST)),
+               ('worker', lambda x: x.move(DIRECTIONS.SOUTH)),
+               ('worker', lambda x: x.move(DIRECTIONS.EAST)),
+               ('worker', lambda x: x.build_city()),
+               ('worker', lambda x: x.pillage()),
+               ('city',   lambda x: x.build_worker()),
+               ('city',   lambda x: x.research())
     ]
 
-    def __init__(self, game_state, observation):
+    def __init__(self):
 
         self._lr = 0.01
         self._gamma = 0.95
@@ -31,34 +31,29 @@ class Clara():
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
 
-        map_shape = (game_state.map.width, game_state.map.height,10)
-        self._model = QLModel(input_shape = map_shape,
+        self._model = QLModel(input_shape = 10,
                               output_shape = len(self.ACTIONS))
 
-        player = game_state.players[observation.player]
-        x = self.get_env_state(game_state)
 
-        self._last_state = {'x' : x,
-                            'y' : np.zeros((map_shape[0],map_shape[1],len(self.ACTIONS))),
-                            'player' : player,
-                            'observation' : observation}
 
-    def play(self,game_state, observation):
+
+
+    def play(self, game_state, observation):
 
         # GET PLAYER
         player = game_state.players[observation.player]
 
-        # GET REWARD
-        reward = self.compute_reward(game_state, observation)
-
         # GET NEW INPUTS
         x = self.get_env_state(game_state)
+
+        # GET REWARD
+        reward = self.compute_reward(game_state, observation)
 
         # TRAIN THE LAST REWARD
         y = self.update_q_function(x, reward)
 
         # GET NEW NEW ACTION
-        actions = self.get_agent_actions(y, player)
+        actions = self.get_agent_action(y, player)
 
         # UPDATE PREVIOUS STATE
         self._last_state = {'x' : x,
@@ -67,6 +62,20 @@ class Clara():
                             'observation' : observation}
 
         return actions
+
+
+    def init_last_state(self, game_state, observation):
+
+
+        x = self.get_env_state(game_state)
+        player = game_state.players[observation.player]
+
+        self._last_state = {'x' : x,
+                            'player' : player,
+                            'observation' : observation,
+                            'y' : np.zeros((x.shape[0],
+                                            x.shape[1],
+                                            len(self.ACTIONS)))}
 
 
     def compute_reward(self, game_state, observation):
@@ -88,14 +97,14 @@ class Clara():
         old_x = self._last_state['x']
         old_y = self._last_state['y']
 
-        if random.random() < self._epsilon:
+        if random.random() > self._epsilon:
             new_y = np.random.rand(*new_y.shape)
 
-        option = np.argmax(y[:,:,0:6], axis=2)
+        option = np.argmax(new_y[:,:,0:6], axis=2)
         for unit in self._last_state['player'].units:
-            x, y = unit.pos.x, unit.pos.y
-            o = option[x, y]
-            old_y[x, y][o] = reward[x, y]
+            i, j = unit.pos.x, unit.pos.y
+            o = option[i, j]
+            old_y[i, j][o] = reward[i, j]
 
         old_y = new_y + self._lr * old_y
         self._model.fit(old_x, old_y)
@@ -109,7 +118,7 @@ class Clara():
         w, h = game_state.map.width, game_state.map.height
         # Map resources
         r = [
-            [0 if game_state.map.map[i][j].resource == None
+            [0 if game_state.map.map[i][j].resource is None
              else game_state.map.map[i][j].resource.amount
              for i in range(w)] for j in range(h)
         ]
@@ -139,20 +148,22 @@ class Clara():
                                        e[k].light_upkeep,
                                        e[k].team]
 
+        return np.dstack([r, u, c])
 
-    def get_agent_action(y, player):
+
+    def get_agent_action(self, y, player):
 
         actions = []
 
         option = np.argmax(y[:,:,0:6], axis=2)
         for unit in player.units:
             idx = option[unit.pos.y, unit.pos.x]
-            actions.append(self.ACTIONS[idx](unit))
+            actions.append(self.ACTIONS[idx][1](unit))
 
         option = np.argmax(y[:,:,6:], axis=2)
         for city in player.cities.values():
             for city_tile in city.citytiles:
                 idx = option[city_tile.pos.y, city_tile.pos.x]
-                actions.append(self.ACTIONS[idx](unit))
+                actions.append(self.ACTIONS[idx][1](unit))
 
         return actions

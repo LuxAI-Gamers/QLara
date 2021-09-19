@@ -14,12 +14,16 @@ class QLModel():
 
         self._input_shape = input_shape
         self._output_shape = output_shape
-        self.build()
 
-    def build(self):
+        self._models = {}
+        for dim in [32,24,16,12]:
+            inputs = tf.keras.Input(shape=(dim,dim,10),
+                                    name='Game map')
 
-        inputs = tf.keras.Input(shape = self._input_shape,
-                                name = 'Game map')
+            self._models[dim] = self.build_network(inputs)
+
+
+    def build_network(self, inputs):
 
         x = tf.keras.layers.Conv2D(self._output_shape,
                                    (1, 1),
@@ -40,21 +44,22 @@ class QLModel():
         model = tf.keras.Model(inputs=inputs, outputs=x)
 
         model.compile(loss='mse', optimizer='adam')
-        print(model.summary())
-        self._model=model
+
+        return model
 
 
     def fit(self, env_state, reward):
 
-        self._model.fit(np.asarray([env_state]),
-                        np.asarray([reward]),
-                        epochs=1,
-                        verbose=1)
+        dim = env_state.shape[0]
+        self._models[dim].fit(np.asarray([env_state]),
+                              np.asarray([reward]),
+                              epochs=1,
+                              verbose=1)
 
 
     def predict(self, env_state):
- 
-        y = self._model.predict(np.asarray([env_state]))[0]
+        dim = env_state.shape[0]
+        return self._models[dim].predict(np.asarray([env_state]))[0]
 
 
     def save(self, model_path):
