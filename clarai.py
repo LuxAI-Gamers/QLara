@@ -9,19 +9,24 @@ DIRECTIONS = Constants.DIRECTIONS
 
 from model import QLModel
 
+
 class Clara():
 
 
-    ACTIONS = [
-               ('worker', lambda x: x.move(DIRECTIONS.NORTH)),
-               ('worker', lambda x: x.move(DIRECTIONS.WEST)),
-               ('worker', lambda x: x.move(DIRECTIONS.SOUTH)),
-               ('worker', lambda x: x.move(DIRECTIONS.EAST)),
-               ('worker', lambda x: x.build_city()),
-               ('worker', lambda x: x.pillage()),
-               ('city',   lambda x: x.build_worker()),
-               ('city',   lambda x: x.research())
-    ]
+    C_ACTIONS = [
+                 lambda x: x.build_worker(),
+                 lambda x: x.research()
+              ]
+
+    W_ACTIONS = [
+               lambda x: x.move(DIRECTIONS.NORTH),
+               lambda x: x.move(DIRECTIONS.WEST),
+               lambda x: x.move(DIRECTIONS.SOUTH),
+               lambda x: x.move(DIRECTIONS.EAST),
+               lambda x: x.build_city(),
+               lambda x: x.pillage(),
+              ]
+
 
     def __init__(self):
 
@@ -31,11 +36,9 @@ class Clara():
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
 
-        self._model = QLModel(input_shape = 10,
-                              output_shape = len(self.ACTIONS))
+        output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
-
-
+        self._model = QLModel(output_shape = output_shape)
 
 
     def play(self, game_state, observation):
@@ -69,13 +72,14 @@ class Clara():
 
         x = self.get_env_state(game_state)
         player = game_state.players[observation.player]
+        output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
         self._last_state = {'x' : x,
                             'player' : player,
                             'observation' : observation,
                             'y' : np.zeros((x.shape[0],
                                             x.shape[1],
-                                            len(self.ACTIONS)))}
+                                            output_shape))}
 
 
     def compute_reward(self, game_state, observation):
@@ -84,7 +88,7 @@ class Clara():
         new_reward = observation['reward']
         old_reward = self._last_state['observation']['reward']
 
-        reward = 1.0 if new_reward>old_reward else -0.1
+        reward = new_reward/old_reward -1 if old_reward!=0 else 0.1
         reward = reward + self._gamma * np.amax(self._last_state['y'], axis=2)
 
         return reward
@@ -100,20 +104,27 @@ class Clara():
         if random.random() > self._epsilon:
             new_y = np.random.rand(*new_y.shape)
 
-#        option = np.argmax(new_y[:,:,6:], axis=2)
-#        for city in self._last_state['player'].cities.values():
-#            for city_tile in city.citytiles:
-#                i, j = city_tile.pos.x, city_tile.pos.y
-#                idx = option[i,j]+6
-#                old_y[i, j][idx] = reward[i, j]
+        # SPLIT UNIT AND CITY PREDICTIONS
+        y_unit = new_y[:,:,0:len(self.W_ACTIONS)]
+        y_city = new_y[:,:,len(self.W_ACTIONS):-1]
 
-        option = np.argmax(new_y[:,:,0:6], axis=2)
+        # CITY LOSS
+        best_actions_map = np.argmax(y_city, axis=2)
+        for city in self._last_state['player'].cities.values():
+            for city_tile in city.citytiles:
+                i, j = city_tile.pos.x, city_tile.pos.y
+                idx = best_actions_map[i,j]
+                old_y[i, j][idx] = reward[i, j]
+
+        # UNITS LOSS
+        best_actions_map = np.argmax(y_unit, axis=2)
         for unit in self._last_state['player'].units:
             i, j = unit.pos.x, unit.pos.y
-            idx = option[i, j]
+            idx = best_actions_map[i, j]
             old_y[i, j][idx] = reward[i, j]
 
-        old_y = new_y + self._lr * old_y
+        # FIT MODEL
+        old_y = (1-self._lr) * new_y + self._lr * old_y
         self._model.fit(old_x, old_y)
 
         return new_y
@@ -123,6 +134,7 @@ class Clara():
 
         # Map shape
         w, h = game_state.map.width, game_state.map.height
+
         # Map resources
         r = [
             [0 if game_state.map.map[i][j].resource is None
@@ -131,6 +143,7 @@ class Clara():
         ]
 
         r = np.array(r).reshape(h, w, 1)
+        r = 2*r/r.max()-1
 
         # Map units
         shape = (w, h, 5)
@@ -158,21 +171,25 @@ class Clara():
         return np.dstack([r, u, c])
 
 
-    def get_agent_action(self, y, player):
+    def get_agent_action(self, new_y, player):
 
         actions = []
 
-        best_options_map = np.argmax(y[:,:,0:6], axis=2)
-        options = [act for act in self.ACTIONS if act[0]=='worker']
-        for unit in player.units:
-            idx = best_options_map[unit.pos.y, unit.pos.x]
-            actions.append(options[idx][1](unit))
+        # SPLIT UNIT AND CITY PREDICTIONS
+        y_unit = new_y[:,:,0:len(self.W_ACTIONS)]
+        y_city = new_y[:,:,len(self.W_ACTIONS):-1]
 
-        best_options_map = np.argmax(y[:,:,6:], axis=2)
-        options = [act for act in self.ACTIONS if act[0]=='city']
+        # GET BEST UNIT ACTION
+        best_actions_map = np.argmax(y_unit, axis=2)
+        for unit in player.units:
+            idx = best_actions_map[unit.pos.y, unit.pos.x]
+            actions.append(self.W_ACTIONS[idx](unit))
+
+        # GET BEST CITY ACTION
+        best_actions_map = np.argmax(y_city, axis=2)
         for city in player.cities.values():
             for city_tile in city.citytiles:
-                idx = best_options_map[city_tile.pos.y, city_tile.pos.x]
-                actions.append(options[idx][1](city_tile))
+                idx = best_actions_map[city_tile.pos.y, city_tile.pos.x]
+                actions.append(self.C_ACTIONS[idx](city_tile))
 
         return actions

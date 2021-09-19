@@ -10,11 +10,9 @@ import tensorflow_hub as hub
 
 class QLModel():
 
-    def __init__(self, input_shape, output_shape):
+    def __init__(self, output_shape):
 
-        self._input_shape = input_shape
         self._output_shape = output_shape
-
         self._models = {}
         for dim in [32,24,16,12]:
             inputs = tf.keras.Input(shape=(dim,dim,10),
@@ -26,15 +24,18 @@ class QLModel():
     def build_network(self, inputs):
 
         x = tf.keras.layers.Conv2D(self._output_shape,
-                                   (1, 1),
+                                   (3, 3),
+                                   padding='same',
                                    activation='relu')(inputs)
 
         x = tf.keras.layers.Conv2D(self._output_shape,
-                                   (1, 1),
+                                   (3, 3),
+                                   padding='same',
                                    activation='relu')(x)
 
         x = tf.keras.layers.Conv2D(self._output_shape,
-                                   (1, 1),
+                                   (3, 3),
+                                   padding='same',
                                    activation='relu')(x)
 
         x = tf.keras.layers.Dense(self._output_shape,
