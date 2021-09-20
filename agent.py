@@ -1,16 +1,24 @@
-import math, sys
+import math
+import sys
+import random
+
 from lux.game import Game
-from lux.game_map import Cell, RESOURCE_TYPES
+from lux.game_map import Cell, RESOURCE_TYPES, Position
+from lux.game_objects import Unit
 from lux.constants import Constants
 from lux.game_constants import GAME_CONSTANTS
 from lux import annotate
 
-DIRECTIONS = Constants.DIRECTIONS
-game_state = None
+from clarai import Clara
+
+
+
+
+clara = Clara()
 
 
 def agent(observation, configuration):
-    global game_state
+    global game_state, clara
 
     ### Do not edit ###
     if observation["step"] == 0:
@@ -18,55 +26,36 @@ def agent(observation, configuration):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
+        clara.init_last_state(game_state, observation)
+        actions = []
     else:
         game_state._update(observation["updates"])
-    
-    actions = []
 
-    ### AI Code goes down here! ### 
-    player = game_state.players[observation.player]
-    opponent = game_state.players[(observation.player + 1) % 2]
-    width, height = game_state.map.width, game_state.map.height
 
-    resource_tiles: list[Cell] = []
-    for y in range(height):
-        for x in range(width):
-            cell = game_state.map.get_cell(x, y)
-            if cell.has_resource():
-                resource_tiles.append(cell)
+    ### AI Code goes down here! ###
+        actions = clara.play(game_state, observation)
 
-    # we iterate over all our units and do something with them
-    for unit in player.units:
-        if unit.is_worker() and unit.can_act():
-            closest_dist = math.inf
-            closest_resource_tile = None
-            if unit.get_cargo_space_left() > 0:
-                # if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
-                for resource_tile in resource_tiles:
-                    if resource_tile.resource.type == Constants.RESOURCE_TYPES.COAL and not player.researched_coal(): continue
-                    if resource_tile.resource.type == Constants.RESOURCE_TYPES.URANIUM and not player.researched_uranium(): continue
-                    dist = resource_tile.pos.distance_to(unit.pos)
-                    if dist < closest_dist:
-                        closest_dist = dist
-                        closest_resource_tile = resource_tile
-                if closest_resource_tile is not None:
-                    actions.append(unit.move(unit.pos.direction_to(closest_resource_tile.pos)))
-            else:
-                # if unit is a worker and there is no cargo space left, and we have cities, lets return to them
-                if len(player.cities) > 0:
-                    closest_dist = math.inf
-                    closest_city_tile = None
-                    for k, city in player.cities.items():
-                        for city_tile in city.citytiles:
-                            dist = city_tile.pos.distance_to(unit.pos)
-                            if dist < closest_dist:
-                                closest_dist = dist
-                                closest_city_tile = city_tile
-                    if closest_city_tile is not None:
-                        move_dir = unit.pos.direction_to(closest_city_tile.pos)
-                        actions.append(unit.move(move_dir))
-
-    # you can add debug annotations using the functions in the annotate object
-    # actions.append(annotate.circle(0, 0))
-    
     return actions
+
+if __name__=='__main__':
+
+    import json
+    from kaggle_environments import make
+    from IPython.display import clear_output 
+
+    episodes = 10
+    for ep in range(episodes):
+        clear_output()
+        print(f"=== Episode {ep} ===")
+        env = make("lux_ai_2021",
+                configuration={"seed": 562124210,
+                                "loglevel": 0,
+                                "annotations": True},
+                debug=True)
+
+        steps = env.run([agent, "simple_agent"])
+    print([step[0]['action'] for step in steps])
+
+    replay = env.toJSON()
+    with open("replay.json", "w") as f:
+        json.dump(replay, f)
