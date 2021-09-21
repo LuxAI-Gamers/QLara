@@ -1,5 +1,6 @@
-import math
+import os
 import sys
+import math
 import random
 from functools import partial
 
@@ -40,7 +41,8 @@ class QLModel():
 
         model = tf.keras.Model(inputs=inputs, outputs=x)
 
-        model.compile(loss='mse', optimizer='adam')
+        model.compile(loss=tf.keras.losses.Huber(),
+                      optimizer='adam')
 
         return model
 
@@ -98,10 +100,16 @@ class QLModel():
         return self._models[dim].predict(np.asarray([env_state]))[0]
 
 
-    def save(self, model_path):
+    def save(self, model_dir):
         for name, model in self._models.items():
-            model.save(model_path+f'/models_{name}.h5')
+            model.save(model_dir+f'/models_{name}.h5')
 
 
-    def load(self, model_path):
-        self._model = tf.keras.model.load_model(model_path)
+    def load(self, model_dir):
+
+        self._models = {}
+        for file_name in os.listdir(model_dir):
+            if file_name.endswith('.h5'):
+                dim = int(file_name.split('.')[0][-2:])
+                model = tf.keras.model.load_model(model_dir+'/'+file_name)
+                self._models[dim] = model
