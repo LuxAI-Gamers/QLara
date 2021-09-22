@@ -183,13 +183,15 @@ class Clara():
         best_actions_map = np.argmax(y_unit, axis=2)
         for unit in player.units:
             idx = best_actions_map[unit.pos.y, unit.pos.x]
-            actions.append(self.W_ACTIONS[idx](unit))
+            if unit.can_act():
+                actions.append(self.W_ACTIONS[idx](unit))
 
         # GET BEST CITY ACTION
         best_actions_map = np.argmax(y_city, axis=2)
         for city in player.cities.values():
             for city_tile in city.citytiles:
                 idx = best_actions_map[city_tile.pos.y, city_tile.pos.x]
-                actions.append(self.C_ACTIONS[idx](city_tile))
+                if city_tile.can_act():
+                    actions.append(self.C_ACTIONS[idx](city_tile))
 
         return actions
