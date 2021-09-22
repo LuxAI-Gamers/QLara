@@ -146,27 +146,29 @@ class Clara():
         r = 2*r/r.max()-1
 
         # Map units
-        shape = (w, h, 5)
-        u = np.zeros(5*w*h).reshape(*shape)
-        units = game_state.players[0].units
+        shape = (w, h, 6)
+        u = np.zeros(6*w*h).reshape(*shape)
+        units = game_state.players[0].units + game_state.players[1].units
         for i in units:
             u[i.pos.y][i.pos.x] = [i.type,
+                                   i.team,
                                    i.cooldown,
                                    i.cargo.wood,
                                    i.cargo.coal,
                                    i.cargo.uranium]
 
         # Cities in map
-        e = game_state.players[1].cities
+        e =  list(game_state.players[0].cities.values())
+        e += list(game_state.players[1].cities.values())
         shape = (w, h, 4)
         c = np.zeros(4*w*h).reshape(*shape)
-        for k in e:
-            citytiles = e[k].citytiles
+        for city in e:
+            citytiles = city.citytiles
             for i in citytiles:
                 c[i.pos.y][i.pos.x] = [i.cooldown,
-                                       e[k].fuel,
-                                       e[k].light_upkeep,
-                                       e[k].team]
+                                       city.fuel,
+                                       city.light_upkeep,
+                                       city.team]
 
         return np.dstack([r, u, c])
 
