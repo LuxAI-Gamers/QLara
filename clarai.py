@@ -146,27 +146,29 @@ class Clara():
         r = 2*r/r.max()-1
 
         # Map units
-        shape = (w, h, 5)
-        u = np.zeros(5*w*h).reshape(*shape)
-        units = game_state.players[0].units
+        shape = (w, h, 6)
+        u = np.zeros(6*w*h).reshape(*shape)
+        units = game_state.players[0].units + game_state.players[1].units
         for i in units:
             u[i.pos.y][i.pos.x] = [i.type,
+                                   i.team,
                                    i.cooldown,
                                    i.cargo.wood,
                                    i.cargo.coal,
                                    i.cargo.uranium]
 
         # Cities in map
-        e = game_state.players[1].cities
+        e =  list(game_state.players[0].cities.values())
+        e += list(game_state.players[1].cities.values())
         shape = (w, h, 4)
         c = np.zeros(4*w*h).reshape(*shape)
-        for k in e:
-            citytiles = e[k].citytiles
+        for city in e:
+            citytiles = city.citytiles
             for i in citytiles:
                 c[i.pos.y][i.pos.x] = [i.cooldown,
-                                       e[k].fuel,
-                                       e[k].light_upkeep,
-                                       e[k].team]
+                                       city.fuel,
+                                       city.light_upkeep,
+                                       city.team]
 
         return np.dstack([r, u, c])
 
@@ -183,13 +185,15 @@ class Clara():
         best_actions_map = np.argmax(y_unit, axis=2)
         for unit in player.units:
             idx = best_actions_map[unit.pos.y, unit.pos.x]
-            actions.append(self.W_ACTIONS[idx](unit))
+            if unit.can_act():
+                actions.append(self.W_ACTIONS[idx](unit))
 
         # GET BEST CITY ACTION
         best_actions_map = np.argmax(y_city, axis=2)
         for city in player.cities.values():
             for city_tile in city.citytiles:
                 idx = best_actions_map[city_tile.pos.y, city_tile.pos.x]
-                actions.append(self.C_ACTIONS[idx](city_tile))
+                if city_tile.can_act():
+                    actions.append(self.C_ACTIONS[idx](city_tile))
 
         return actions

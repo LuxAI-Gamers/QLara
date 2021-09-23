@@ -17,7 +17,7 @@ class QLModel():
         self._output_shape = output_shape
         self._models = {}
         for dim in [32,24,16,12]:
-            inputs = tf.keras.Input(shape=(dim,dim,10),
+            inputs = tf.keras.Input(shape=(dim,dim,11),
                                     name='Game map')
 
             self._models[dim] = self.build_network(inputs)
