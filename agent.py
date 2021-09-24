@@ -26,7 +26,7 @@ def agent(observation, configuration):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
-        clara.init_last_state(game_state, observation)
+        clara.init_old_state(game_state, observation)
         actions = []
     else:
         game_state._update(observation["updates"])
@@ -49,7 +49,7 @@ if __name__=='__main__':
         print(f"=== Episode {ep} ===")
         env = make("lux_ai_2021",
                 configuration={"seed": 562124210,
-                                "loglevel": 0,
+                                "loglevel": 1,
                                 "annotations": True},
                 debug=True)
 

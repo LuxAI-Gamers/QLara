@@ -32,7 +32,7 @@ class Clara():
 
         self._lr = 0.01
         self._gamma = 0.95
-        self._epsilon = 1.0
+        self._epsilon = 0.95
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
 
@@ -62,6 +62,9 @@ class Clara():
 
         # UPDATE PREVIOUS STATE
         self._old_state = self._new_state
+        self._old_state['actions'] = actions
+
+        print(actions)
 
         return actions
 
@@ -70,6 +73,7 @@ class Clara():
 
         self._new_state = {'x' : None,
                            'y' : None,
+                           'actions' : [],
                            'game_state' : game_state,
                            'observation' : observation}
 
@@ -85,11 +89,41 @@ class Clara():
     def compute_reward(self):
         """
         """
+        old_y = self._old_state['y']
+
+        new_state = self._new_state['game_state']
+        old_state = self._old_state['game_state']
+
         new_reward = self._new_state['observation']['reward']
         old_reward = self._old_state['observation']['reward']
 
         reward = new_reward/old_reward -1 if old_reward!=0 else 0.1
-        reward = reward + self._gamma * np.amax(self._old_state['y'], axis=2)
+        reward = reward + self._gamma * np.amax(old_y, axis=2)
+
+        reward = self.validate(reward)
+
+        return reward
+
+
+    def validate(self, reward):
+
+        actions    = self._old_state['actions']
+        new_player = self._new_state['game_state'].players[0]
+        old_player = self._old_state['game_state'].players[0]
+
+        units_that_acted = [action.split(' ')[1] for action in actions]
+
+        for new_unit in new_player.units:
+            for old_unit in old_player.units:
+                if  new_unit.id            ==  old_unit.id         and \
+                    new_unit.pos.x         ==  old_unit.pos.x      and \
+                    new_unit.pos.y         ==  old_unit.pos.y      and \
+                    new_unit.cargo.wood    ==  old_unit.cargo.wood and \
+                    new_unit.cargo.coal    ==  old_unit.cargo.coal and \
+                    new_unit.cargo.uranium ==  old_unit.cargo.uranium:
+
+                    if new_unit.id in units_that_acted:
+                        reward[new_unit.pos.x,new_unit.pos.y] = -2
 
         return reward
 
