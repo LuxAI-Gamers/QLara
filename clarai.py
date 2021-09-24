@@ -43,9 +43,6 @@ class Clara():
 
     def play(self, game_state, observation):
 
-        # GET PLAYER
-        player = game_state.players[observation.player]
-
         # GET NEW INPUTS
         x = self.get_env_state(game_state)
 
@@ -56,12 +53,12 @@ class Clara():
         y = self.update_q_function(x, reward)
 
         # GET NEW NEW ACTION
-        actions = self.get_agent_action(y, player)
+        actions = self.get_agent_action(y, game_state)
 
         # UPDATE PREVIOUS STATE
         self._last_state = {'x' : x,
                             'y' : y,
-                            'player' : player,
+                            'game_state' : game_state,
                             'observation' : observation}
 
         return actions
@@ -75,7 +72,7 @@ class Clara():
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
         self._last_state = {'x' : x,
-                            'player' : player,
+                            'game_state' : game_state,
                             'observation' : observation,
                             'y' : np.zeros((x.shape[0],
                                             x.shape[1],
@@ -100,6 +97,7 @@ class Clara():
 
         old_x = self._last_state['x']
         old_y = self._last_state['y']
+        player= self._last_state['game_state'].players[0]
 
         if random.random() > self._epsilon:
             new_y = np.random.rand(*new_y.shape)
@@ -110,7 +108,7 @@ class Clara():
 
         # CITY LOSS
         best_actions_map = np.argmax(y_city, axis=2)
-        for city in self._last_state['player'].cities.values():
+        for city in player.cities.values():
             for city_tile in city.citytiles:
                 i, j = city_tile.pos.x, city_tile.pos.y
                 idx = best_actions_map[i,j]
@@ -118,7 +116,7 @@ class Clara():
 
         # UNITS LOSS
         best_actions_map = np.argmax(y_unit, axis=2)
-        for unit in self._last_state['player'].units:
+        for unit in player.units:
             i, j = unit.pos.x, unit.pos.y
             idx = best_actions_map[i, j]
             old_y[i, j][idx] = reward[i, j]
@@ -173,9 +171,10 @@ class Clara():
         return np.dstack([r, u, c])
 
 
-    def get_agent_action(self, new_y, player):
+    def get_agent_action(self, new_y, game_state):
 
         actions = []
+        player = game_state.players[0]
 
         # SPLIT UNIT AND CITY PREDICTIONS
         y_unit = new_y[:,:,0:len(self.W_ACTIONS)]
