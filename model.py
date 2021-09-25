@@ -1,12 +1,13 @@
 import os
 import sys
 import math
+import time
 import random
 from functools import partial
 
 import numpy as np
 import tensorflow as tf
-import tensorflow_hub as hub
+#import tensorflow_hub as hub
 
 
 
@@ -101,8 +102,11 @@ class QLModel():
 
 
     def save(self, model_dir):
+        timestamp = str(int(time.time()))
+
+        os.mkdir(model_dir+'/'+timestamp)
         for name, model in self._models.items():
-            model.save(model_dir+f'/models_{name}.h5')
+            model.save(model_dir+'/'+timestamp+'/'+f'model_{name}.h5')
 
 
     def load(self, model_dir):
@@ -111,5 +115,5 @@ class QLModel():
         for file_name in os.listdir(model_dir):
             if file_name.endswith('.h5'):
                 dim = int(file_name.split('.')[0][-2:])
-                model = tf.keras.model.load_model(model_dir+'/'+file_name)
+                model = tf.keras.models.load_model(model_dir+'/'+file_name)
                 self._models[dim] = model
