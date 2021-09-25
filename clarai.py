@@ -108,8 +108,13 @@ class Clara():
     def validate(self, reward):
 
         actions    = self._old_state['actions']
-        new_player = self._new_state['game_state'].players[0]
-        old_player = self._old_state['game_state'].players[0]
+        old_game_state = self._old_state['game_state']
+        old_observation = self._old_state['observation']
+        old_player = old_game_state.players[old_observation.player]
+
+        new_game_state = self._new_state['game_state']
+        new_observation = self._new_state['observation']
+        new_player = new_game_state.players[new_observation.player]
 
         units_that_acted = [action.split(' ')[1] for action in actions]
 
@@ -123,7 +128,7 @@ class Clara():
                     new_unit.cargo.uranium ==  old_unit.cargo.uranium:
 
                     if new_unit.id in units_that_acted:
-                        reward[new_unit.pos.x,new_unit.pos.y] = -2
+                        reward[new_unit.pos.y,new_unit.pos.x] = -2
 
         return reward
 
@@ -136,7 +141,10 @@ class Clara():
         old_x = self._old_state['x']
         old_y = self._old_state['y']
 
-        player = self._old_state['game_state'].players[0]
+        game_state = self._old_state['game_state']
+        observation = self._old_state['observation']
+
+        player = game_state.players[observation.player]
 
         if random.random() > self._epsilon:
             new_y = np.random.rand(*new_y.shape)
@@ -149,16 +157,16 @@ class Clara():
         best_actions_map = np.argmax(y_city, axis=2)
         for city in player.cities.values():
             for city_tile in city.citytiles:
-                i, j = city_tile.pos.x, city_tile.pos.y
+                j,i = city_tile.pos.x, city_tile.pos.y
                 idx = best_actions_map[i,j]
-                old_y[i, j][idx] = reward[i, j]
+                old_y[i,j][idx] = reward[i,j]
 
         # UNITS LOSS
         best_actions_map = np.argmax(y_unit, axis=2)
         for unit in player.units:
-            i, j = unit.pos.x, unit.pos.y
-            idx = best_actions_map[i, j]
-            old_y[i, j][idx] = reward[i, j]
+            j,i = unit.pos.x, unit.pos.y
+            idx = best_actions_map[i,j]
+            old_y[i,j][idx] = reward[i,j]
 
         # FIT MODEL
         old_y = (1-self._lr) * new_y + self._lr * old_y
@@ -171,6 +179,9 @@ class Clara():
 
 
         game_state = self._new_state['game_state']
+        observation = self._new_state['observation']
+        player = game_state.players[observation.player]
+        opponent = game_state.players[(observation.player+1)%2]
 
         # MAP SHAPE
         w, h = game_state.map.width, game_state.map.height
@@ -188,7 +199,7 @@ class Clara():
         # MAP UNITS
         shape = (w, h, 6)
         u = np.zeros(6*w*h).reshape(*shape)
-        units = game_state.players[0].units + game_state.players[1].units
+        units = player.units + opponent.units
         for i in units:
             u[i.pos.y][i.pos.x] = [i.type,
                                    i.team,
@@ -198,8 +209,9 @@ class Clara():
                                    i.cargo.uranium]
 
         # CITIES IN MAP
-        e =  list(game_state.players[0].cities.values())
-        e += list(game_state.players[1].cities.values())
+        e  = list(player.cities.values())
+        e += list(opponent.cities.values())
+
         shape = (w, h, 4)
         c = np.zeros(4*w*h).reshape(*shape)
         for city in e:
@@ -217,11 +229,14 @@ class Clara():
 
         actions = []
         new_y = self._new_state['y']
-        player = self._new_state['game_state'].players[0]
+
+        game_state = self._new_state['game_state']
+        observation = self._new_state['observation']
+        player = game_state.players[observation.player]
 
         # SPLIT UNIT AND CITY PREDICTIONS
         y_unit = new_y[:,:,0:len(self.W_ACTIONS)]
-        y_city = new_y[:,:,len(self.W_ACTIONS):-1]
+        y_city = new_y[:,:,len(self.W_ACTIONS):]
 
         # GET BEST UNIT ACTION
         best_actions_map = np.argmax(y_unit, axis=2)
@@ -239,3 +254,4 @@ class Clara():
                     actions.append(self.C_ACTIONS[idx](city_tile))
 
         return actions
+
