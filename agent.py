@@ -12,8 +12,6 @@ from lux import annotate
 from clarai import Clara
 
 
-
-
 clara = Clara()
 
 
@@ -26,7 +24,8 @@ def agent(observation, configuration):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
-        clara.init_old_state(game_state, observation)
+        #clara._model.load('models/1632520074/')
+        clara.init_memory(game_state, observation)
         actions = []
     else:
         game_state._update(observation["updates"])
@@ -40,21 +39,24 @@ def agent(observation, configuration):
 if __name__=='__main__':
 
     import json
+    import random
     from kaggle_environments import make
-    from IPython.display import clear_output 
+    from IPython.display import clear_output
 
-    episodes = 10
+    episodes = 25
     for ep in range(episodes):
         clear_output()
         print(f"=== Episode {ep} ===")
         env = make("lux_ai_2021",
-                configuration={"seed": 562124210,
+                configuration={"seed": random.randint(0,99999999),
                                 "loglevel": 1,
                                 "annotations": True},
                 debug=True)
 
         steps = env.run([agent, "simple_agent"])
     print([step[0]['action'] for step in steps])
+
+    clara._model.save('models')
 
     replay = env.toJSON()
     with open("replay.json", "w") as f:

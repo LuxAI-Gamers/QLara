@@ -8,7 +8,7 @@ from lux.game_constants import GAME_CONSTANTS
 DIRECTIONS = Constants.DIRECTIONS
 
 from model import QLModel
-
+from reward import CustomReward
 
 class Clara():
 
@@ -40,6 +40,10 @@ class Clara():
 
         self._model = QLModel(output_shape = output_shape)
 
+        self._reward = CustomReward(self._gamma,
+                                    self.W_ACTIONS,
+                                    self.C_ACTIONS)
+
 
     def play(self, game_state, observation):
 
@@ -49,27 +53,28 @@ class Clara():
                             'observation' : observation}
 
         # GET NEW INPUTS
-        self._new_state['x'] = self.get_env_state()
+        x = self.get_env_state()
 
-        # GET REWARD
-        reward = self.compute_reward()
-
-        # TRAIN THE LAST REWARD
-        self._new_state['y'] = self.update_q_function(reward)
+        # THINK THE NEXT MOVE
+        y = self.think(x)
 
         # GET NEW NEW ACTION
-        actions = self.get_agent_action()
+        actions = self.get_agent_action(y)
 
         # UPDATE PREVIOUS STATE
-        self._old_state = self._new_state
-        self._old_state['actions'] = actions
+        self.update_memory(x,y,actions)
 
-        print(actions)
+        # LEARN FROM THE LAST REWARD
+        self.learn()
 
         return actions
 
 
-    def init_old_state(self, game_state, observation):
+    def init_memory(self, game_state, observation):
+
+        """
+        Init memory
+        """
 
         self._new_state = {'x' : None,
                            'y' : None,
@@ -86,100 +91,58 @@ class Clara():
         self._old_state = self._new_state
 
 
-    def compute_reward(self):
+    def update_memory(self, x, y, actions):
+
         """
+        Update memory
         """
-        old_y = self._old_state['y']
 
-        new_state = self._new_state['game_state']
-        old_state = self._old_state['game_state']
-
-        new_reward = self._new_state['observation']['reward']
-        old_reward = self._old_state['observation']['reward']
-
-        reward = new_reward/old_reward -1 if old_reward!=0 else 0.1
-        reward = reward + self._gamma * np.amax(old_y, axis=2)
-
-        reward = self.validate(reward)
-
-        return reward
+        self._new_state['x'] = x
+        self._new_state['y'] = y
+        self._new_state['actions'] = actions
+        self._old_state = self._new_state
 
 
-    def validate(self, reward):
+    def think(self,x):
 
-        actions    = self._old_state['actions']
-        old_game_state = self._old_state['game_state']
-        old_observation = self._old_state['observation']
-        old_player = old_game_state.players[old_observation.player]
+        """
+        Model predict
+        """
 
-        new_game_state = self._new_state['game_state']
-        new_observation = self._new_state['observation']
-        new_player = new_game_state.players[new_observation.player]
+        y = self._model.predict(x)
 
-        units_that_acted = [action.split(' ')[1] for action in actions]
+        if random.random() > self._epsilon:
+            y = np.random.rand(*y.shape)
 
-        for new_unit in new_player.units:
-            for old_unit in old_player.units:
-                if  new_unit.id            ==  old_unit.id         and \
-                    new_unit.pos.x         ==  old_unit.pos.x      and \
-                    new_unit.pos.y         ==  old_unit.pos.y      and \
-                    new_unit.cargo.wood    ==  old_unit.cargo.wood and \
-                    new_unit.cargo.coal    ==  old_unit.cargo.coal and \
-                    new_unit.cargo.uranium ==  old_unit.cargo.uranium:
-
-                    if new_unit.id in units_that_acted:
-                        reward[new_unit.pos.y,new_unit.pos.x] = -2
-
-        return reward
+        return y
 
 
-    def update_q_function(self,reward):
+    def learn(self):
 
-        new_x = self._new_state['x']
-        new_y = self._model.predict(new_x)
+        """
+        Model train
+        """
 
         old_x = self._old_state['x']
         old_y = self._old_state['y']
 
-        game_state = self._old_state['game_state']
-        observation = self._old_state['observation']
-
-        player = game_state.players[observation.player]
-
-        if random.random() > self._epsilon:
-            new_y = np.random.rand(*new_y.shape)
-
-        # SPLIT UNIT AND CITY PREDICTIONS
-        y_unit = new_y[:,:,0:len(self.W_ACTIONS)]
-        y_city = new_y[:,:,len(self.W_ACTIONS):-1]
-
-        # CITY LOSS
-        best_actions_map = np.argmax(y_city, axis=2)
-        for city in player.cities.values():
-            for city_tile in city.citytiles:
-                j,i = city_tile.pos.x, city_tile.pos.y
-                idx = best_actions_map[i,j]
-                old_y[i,j][idx] = reward[i,j]
-
-        # UNITS LOSS
-        best_actions_map = np.argmax(y_unit, axis=2)
-        for unit in player.units:
-            j,i = unit.pos.x, unit.pos.y
-            idx = best_actions_map[i,j]
-            old_y[i,j][idx] = reward[i,j]
-
         # FIT MODEL
+        new_y = self._reward.get_target(self._new_state,
+                                        self._old_state)
+
         old_y = (1-self._lr) * new_y + self._lr * old_y
         self._model.fit(old_x, old_y)
-
-        return new_y
 
 
     def get_env_state(self):
 
+        """
+        TRansform game state into model input matrix
+        """
 
-        game_state = self._new_state['game_state']
+        game_state  = self._new_state['game_state']
         observation = self._new_state['observation']
+
         player = game_state.players[observation.player]
         opponent = game_state.players[(observation.player+1)%2]
 
@@ -225,10 +188,13 @@ class Clara():
         return np.dstack([r, u, c])
 
 
-    def get_agent_action(self):
+    def get_agent_action(self, new_y):
+
+        """
+        Transform model output into game actions
+        """
 
         actions = []
-        new_y = self._new_state['y']
 
         game_state = self._new_state['game_state']
         observation = self._new_state['observation']
@@ -254,4 +220,3 @@ class Clara():
                     actions.append(self.C_ACTIONS[idx](city_tile))
 
         return actions
-
