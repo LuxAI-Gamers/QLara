@@ -1,19 +1,19 @@
 ---
-name: Generic Issue Template
-about: This is a generic template with basic information
+name: Issue Template
+about: Description-Requirements-Acceptance template
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Description**
-Description of issue
+### Description
+Description of the issue.
 
+### Requirements
+Things you need in order to complete the issue.
+- [ ] Requirements 1
 
-**Requirements**
-[] Requierements 1
-
-**Acceptance Criteria**
-
-[] Criteria 1
+### Acceptance Criteria
+Criteria that must be met in order to close the issue successfully.
+- [ ] Criteria 1
