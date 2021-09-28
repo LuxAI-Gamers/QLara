@@ -62,13 +62,24 @@ class Game:
                 wood = int(strs[7])
                 coal = int(strs[8])
                 uranium = int(strs[9])
-                self.players[team].units.append(Unit(team, unittype, unitid, x, y, cooldown, wood, coal, uranium))
+                self.players[team].units.append(
+                    Unit(
+                        team,
+                        unittype,
+                        unitid,
+                        x,
+                        y,
+                        cooldown,
+                        wood,
+                        coal,
+                        uranium))
             elif input_identifier == INPUT_CONSTANTS.CITY:
                 team = int(strs[1])
                 cityid = strs[2]
                 fuel = float(strs[3])
                 lightupkeep = float(strs[4])
-                self.players[team].cities[cityid] = City(team, cityid, fuel, lightupkeep)
+                self.players[team].cities[cityid] = City(
+                    team, cityid, fuel, lightupkeep)
             elif input_identifier == INPUT_CONSTANTS.CITY_TILES:
                 team = int(strs[1])
                 cityid = strs[2]
@@ -78,7 +89,7 @@ class Game:
                 city = self.players[team].cities[cityid]
                 citytile = city._add_city_tile(x, y, cooldown)
                 self.map.get_cell(x, y).citytile = citytile
-                self.players[team].city_tile_count += 1;
+                self.players[team].city_tile_count += 1
             elif input_identifier == INPUT_CONSTANTS.ROADS:
                 x = int(strs[1])
                 y = int(strs[2])
