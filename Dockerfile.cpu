@@ -29,5 +29,5 @@ RUN npm i -g @lux-ai/2021-challenge@latest
 
 ### ClarAI setup ###
 WORKDIR /root
-COPY ./requirements.txt .
+COPY ./requirements_cpu.txt .
 RUN pip install -r requirements_cpu.txt
