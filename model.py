@@ -1,8 +1,5 @@
 import os
-import sys
-import math
 import time
-import random
 from functools import partial
 
 import numpy as np
@@ -42,7 +39,7 @@ class QLModel():
 
         model = tf.keras.Model(inputs=inputs, outputs=x)
 
-        model.compile(loss=tf.keras.losses.Huber(),
+        model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
                       optimizer='adam')
 
         return model
