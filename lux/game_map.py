@@ -19,6 +19,7 @@ class Cell:
         self.resource: Resource = None
         self.citytile = None
         self.road = 0
+
     def has_resource(self):
         return self.resource is not None and self.resource.amount > 0
 
