@@ -102,7 +102,8 @@ class Clara():
 
         y = self._model.predict(x)
 
-        if random.random() > self._epsilon * np.exp(- self._new_state['game_state'].turn / 60):
+        if random.random() > self._epsilon * \
+                np.exp(- self._new_state['game_state'].turn / 60):
             y = np.random.rand(*y.shape)
 
         return y
