@@ -1,6 +1,11 @@
+# Jupyter
 jupyter==1.0.0
 nbconvert==6.0.7
-prompt-toolkit==1.0.15
+prompt-toolkit==3.0.20
+
+# Kaggle
 kaggle-environments==1.8.12
-tensorflow==2.6.0
+
+# Tensorflow
+tensorflow-cpu==2.6.0
 tensorflow-hub==0.12.0
