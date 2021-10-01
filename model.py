@@ -85,9 +85,9 @@ class QLModel():
 
     def fit(self, env_state, reward):
 
-        dim = env_state.shape[0]
-        self._models[dim].fit(np.asarray([env_state]),
-                              np.asarray([reward]),
+        dim = env_state.shape[1]
+        self._models[dim].fit(env_state,
+                              reward,
                               epochs=1,
                               verbose=1)
 

@@ -7,6 +7,9 @@ import numpy as np
 class Reward():
 
     def __init__(self):
+        self.init()
+
+    def init(self):
         self._memory = []
 
     def update(self, new_state, old_state):
@@ -23,8 +26,11 @@ class Reward():
 
 class BatchReward(Reward):
 
-    def __init__(self, gamma, W_ACTIONS, C_ACTIONS):
+    def __init__(self, gamma, lr, W_ACTIONS, C_ACTIONS):
 
+        super(BatchReward,self).__init__()
+
+        self._lr = lr
         self._gamma = gamma
         self.W_ACTIONS = W_ACTIONS
         self.C_ACTIONS = C_ACTIONS
@@ -100,34 +106,29 @@ class BatchReward(Reward):
 
         return old_y
 
-    def compute_reward(self, new_state, old_state, batch_reward):
-
-        reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
-
-        return reward_matrix
-
     def get_batch(self):
 
-        first_state = self.memory[0][0]
-        last_state = self.memory[-1][-1]
-        batch_reward = reward_function(first_state, last_state)
+        first_state = self._memory[0][0]
+        last_state = self._memory[-1][-1]
+        batch_reward = self.reward_function(first_state, last_state)
 
         x_batch = []
         y_batch = []
         for new_state, old_state in self._memory:
 
             old_x = old_state['x']
+            old_y = old_state['y']
             new_y = new_state['y']
 
-            reward = self.compute_reward(first_state, last_state, batch_reward)
-            reward = self.validate_actions(new_state, old_state, reward)
-            target = self.correct_old_prediction(new_state, old_state, reward)
+            reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
+            reward_matrix = self.validate_actions(new_state, old_state, reward_matrix)
+            reward_matrix = self.correct_old_prediction(new_state, old_state, reward_matrix)
 
-            old_y = (1 - self._lr) * new_y + self._lr * old_y
+            reward_matrix = (1 - self._lr) * new_y + self._lr * reward_matrix
 
             x_batch.append(old_x)
-            y_batch.append(old_y)
+            y_batch.append(reward_matrix)
 
         self._memory = []
 
-        return x_batch, y_batch
+        return np.array(x_batch), np.array(y_batch)

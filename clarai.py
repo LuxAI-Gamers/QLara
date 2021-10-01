@@ -1,4 +1,4 @@
-from reward import CustomReward
+from reward import BatchReward
 from model import QLModel
 import math
 import sys
@@ -30,7 +30,7 @@ class Clara():
 
         self._lr = 0.01
         self._gamma = 0.95
-s        self._epsilon = 0.95
+        self._epsilon = 0.95
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
         self._batch_length = 12
@@ -39,9 +39,10 @@ s        self._epsilon = 0.95
 
         self._model = QLModel(output_shape=output_shape)
 
-        self._reward = CustomReward(self._gamma,
-                                    self.W_ACTIONS,
-                                    self.C_ACTIONS)
+        self._reward = BatchReward(self._lr,
+                                   self._gamma,
+                                   self.W_ACTIONS,
+                                   self.C_ACTIONS)
 
     def play(self, game_state, observation):
 
@@ -84,6 +85,7 @@ s        self._epsilon = 0.95
 
         self._new_state['x'] = x
         self._new_state['y'] = y
+        self._reward.init()
         self._old_state = self._new_state
 
     def update_memory(self, x, y, actions):
@@ -123,6 +125,7 @@ s        self._epsilon = 0.95
         if len(self._reward._memory) >= self._batch_length:
             #TODO AUGMENTATION
             x_batch, y_batch = self._reward.get_batch()
+            self._reward.init()
             self._model.fit(x_batch,y_batch)
 
     def get_env_state(self):
