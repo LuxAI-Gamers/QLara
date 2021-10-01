@@ -30,9 +30,10 @@ class Clara():
 
         self._lr = 0.01
         self._gamma = 0.95
-        self._epsilon = 0.95
+s        self._epsilon = 0.95
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
+        self._batch_length = 12
 
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
@@ -116,11 +117,13 @@ class Clara():
         old_y = self._old_state['y']
 
         # FIT MODEL
-        new_y = self._reward.get_target(self._new_state,
-                                        self._old_state)
+        new_y = self._reward.update(self._new_state,
+                                    self._old_state)
 
-        old_y = (1 - self._lr) * new_y + self._lr * old_y
-        self._model.fit(old_x, old_y)
+        if len(self._reward._memory) >= self._batch_length:
+            #TODO AUGMENTATION
+            x_batch, y_batch = self._reward.get_batch()
+            self._model.fit(x_batch,y_batch)
 
     def get_env_state(self):
         """
@@ -161,6 +164,7 @@ class Clara():
         # CITIES IN MAP
         e = list(player.cities.values())
         e += list(opponent.cities.values())
+
 
         shape = (w, h, 4)
         c = np.zeros(4 * w * h).reshape(*shape)-1

@@ -6,15 +6,22 @@ import numpy as np
 
 class Reward():
 
+    def __init__(self):
+        self._memory = []
+
+    def update(self, new_state, old_state):
+        self._memory.append((new_state,old_state))
+
     @abstractmethod
     def reward_function(self, new_reward, old_reward):
         pass
 
-    def get_target(self, new_state, old_state):
+    @abstractmethod
+    def get_target(self):
         pass
 
 
-class CustomReward(Reward):
+class BatchReward(Reward):
 
     def __init__(self, gamma, W_ACTIONS, C_ACTIONS):
 
@@ -22,23 +29,15 @@ class CustomReward(Reward):
         self.W_ACTIONS = W_ACTIONS
         self.C_ACTIONS = C_ACTIONS
 
-    def reward_function(self, new_reward, old_reward):
+    def reward_function(self, new_state, old_state):
         """
         """
-        reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
-
-        return reward
-
-    def compute_reward(self, new_state, old_state):
-
-        old_y = old_state['y']
         old_reward = old_state['observation']['reward']
         new_reward = new_state['observation']['reward']
 
-        reward = self.reward_function(new_reward, old_reward)
-        reward_matrix = reward + self._gamma * np.amax(old_y, axis=2)
+        reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
 
-        return reward_matrix
+        return reward
 
     def validate_actions(self, new_state, old_state, reward):
 
@@ -64,7 +63,7 @@ class CustomReward(Reward):
                         new_unit.cargo.uranium == old_unit.cargo.uranium:
 
                     if new_unit.id in units_that_acted:
-                        reward[new_unit.pos.y, new_unit.pos.x] = -2
+                        reward[new_unit.pos.y, new_unit.pos.x] = -1
 
         return reward
 
@@ -101,10 +100,34 @@ class CustomReward(Reward):
 
         return old_y
 
-    def get_target(self, new_state, old_state):
+    def compute_reward(self, new_state, old_state, batch_reward):
 
-        reward = self.compute_reward(new_state, old_state)
-        reward = self.validate_actions(new_state, old_state, reward)
-        target = self.correct_old_prediction(new_state, old_state, reward)
+        reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
 
-        return target
+        return reward_matrix
+
+    def get_batch(self):
+
+        first_state = self.memory[0][0]
+        last_state = self.memory[-1][-1]
+        batch_reward = reward_function(first_state, last_state)
+
+        x_batch = []
+        y_batch = []
+        for new_state, old_state in self._memory:
+
+            old_x = old_state['x']
+            new_y = new_state['y']
+
+            reward = self.compute_reward(first_state, last_state, batch_reward)
+            reward = self.validate_actions(new_state, old_state, reward)
+            target = self.correct_old_prediction(new_state, old_state, reward)
+
+            old_y = (1 - self._lr) * new_y + self._lr * old_y
+
+            x_batch.append(old_x)
+            y_batch.append(old_y)
+
+        self._memory = []
+
+        return x_batch, y_batch
