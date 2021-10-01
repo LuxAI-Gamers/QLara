@@ -123,10 +123,10 @@ class Clara():
                                     self._old_state)
 
         if len(self._reward._memory) >= self._batch_length:
-            #TODO AUGMENTATION
+            # TODO AUGMENTATION
             x_batch, y_batch = self._reward.get_batch()
             self._reward.init()
-            self._model.fit(x_batch,y_batch)
+            self._model.fit(x_batch, y_batch)
 
     def get_env_state(self):
         """
@@ -154,7 +154,7 @@ class Clara():
 
         # MAP UNITS
         shape = (w, h, 6)
-        u = np.zeros(6 * w * h).reshape(*shape)-1
+        u = np.zeros(6 * w * h).reshape(*shape) - 1
         units = player.units + opponent.units
         for i in units:
             u[i.pos.y][i.pos.x] = [i.type,
@@ -168,9 +168,8 @@ class Clara():
         e = list(player.cities.values())
         e += list(opponent.cities.values())
 
-
         shape = (w, h, 4)
-        c = np.zeros(4 * w * h).reshape(*shape)-1
+        c = np.zeros(4 * w * h).reshape(*shape) - 1
         for city in e:
             citytiles = city.citytiles
             for i in citytiles:

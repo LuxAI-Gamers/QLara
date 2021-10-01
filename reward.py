@@ -13,7 +13,7 @@ class Reward():
         self._memory = []
 
     def update(self, new_state, old_state):
-        self._memory.append((new_state,old_state))
+        self._memory.append((new_state, old_state))
 
     @abstractmethod
     def reward_function(self, new_reward, old_reward):
@@ -28,7 +28,7 @@ class BatchReward(Reward):
 
     def __init__(self, gamma, lr, W_ACTIONS, C_ACTIONS):
 
-        super(BatchReward,self).__init__()
+        super(BatchReward, self).__init__()
 
         self._lr = lr
         self._gamma = gamma
@@ -121,8 +121,10 @@ class BatchReward(Reward):
             new_y = new_state['y']
 
             reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
-            reward_matrix = self.validate_actions(new_state, old_state, reward_matrix)
-            reward_matrix = self.correct_old_prediction(new_state, old_state, reward_matrix)
+            reward_matrix = self.validate_actions(
+                new_state, old_state, reward_matrix)
+            reward_matrix = self.correct_old_prediction(
+                new_state, old_state, reward_matrix)
 
             reward_matrix = (1 - self._lr) * new_y + self._lr * reward_matrix
 
