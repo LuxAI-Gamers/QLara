@@ -6,7 +6,6 @@ import random
 
 import numpy as np
 from lux.constants import Constants
-from lux.game_constants import GAME_CONSTANTS
 DIRECTIONS = Constants.DIRECTIONS
 
 
