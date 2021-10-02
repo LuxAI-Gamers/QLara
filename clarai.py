@@ -124,7 +124,7 @@ class Clara():
 
         if len(self._reward._memory) >= self._batch_length:
             x_batch, y_batch = self._reward.get_batch()
-            x_batch, y_batch = self._data_augmentor.get_batch(x_batch,y_batch)
+            x_batch, y_batch = self._data_augmentor.get_batch(x_batch, y_batch)
             self._reward.init()
             self._model.fit(x_batch, y_batch)
 
