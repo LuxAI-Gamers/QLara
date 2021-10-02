@@ -1,4 +1,4 @@
-from reward import CustomReward
+from reward import BatchReward
 from model import QLModel
 import math
 import sys
@@ -33,14 +33,16 @@ class Clara():
         self._epsilon = 0.95
         self._epsilon_final = 0.01
         self._epsilon_decay = 0.995
+        self._batch_length = 12
 
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
         self._model = QLModel(output_shape=output_shape)
 
-        self._reward = CustomReward(self._gamma,
-                                    self.W_ACTIONS,
-                                    self.C_ACTIONS)
+        self._reward = BatchReward(self._lr,
+                                   self._gamma,
+                                   self.W_ACTIONS,
+                                   self.C_ACTIONS)
 
     def play(self, game_state, observation):
 
@@ -83,6 +85,7 @@ class Clara():
 
         self._new_state['x'] = x
         self._new_state['y'] = y
+        self._reward.init()
         self._old_state = self._new_state
 
     def update_memory(self, x, y, actions):
@@ -116,11 +119,14 @@ class Clara():
         old_y = self._old_state['y']
 
         # FIT MODEL
-        new_y = self._reward.get_target(self._new_state,
-                                        self._old_state)
+        new_y = self._reward.update(self._new_state,
+                                    self._old_state)
 
-        old_y = (1 - self._lr) * new_y + self._lr * old_y
-        self._model.fit(old_x, old_y)
+        if len(self._reward._memory) >= self._batch_length:
+            # TODO AUGMENTATION
+            x_batch, y_batch = self._reward.get_batch()
+            self._reward.init()
+            self._model.fit(x_batch, y_batch)
 
     def get_env_state(self):
         """
@@ -148,7 +154,7 @@ class Clara():
 
         # MAP UNITS
         shape = (w, h, 6)
-        u = np.zeros(6 * w * h).reshape(*shape)-1
+        u = np.zeros(6 * w * h).reshape(*shape) - 1
         units = player.units + opponent.units
         for i in units:
             u[i.pos.y][i.pos.x] = [i.type,
@@ -163,7 +169,7 @@ class Clara():
         e += list(opponent.cities.values())
 
         shape = (w, h, 4)
-        c = np.zeros(4 * w * h).reshape(*shape)-1
+        c = np.zeros(4 * w * h).reshape(*shape) - 1
         for city in e:
             citytiles = city.citytiles
             for i in citytiles:
