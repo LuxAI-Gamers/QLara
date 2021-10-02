@@ -186,6 +186,12 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-### LUX-AI ###
+# History
+.bash_history
+.python_history
 
+### LUX-AI ###
 replay.json
+
+# TensorFlow
+.keras/
