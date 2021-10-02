@@ -8,8 +8,9 @@ class DataAugmentor():
                'S': 4,
                'E': 5}
 
-    def get_batch(self, batch):
+    def get_batch(self, x_batch, y_batch):
 
+        batch = list(zip(x_batch,y_batch))
         batch__90 = [(self.rot_90(x,y)) for x,y in batch]
         batch_180 = [(self.rot_90(x,y)) for x,y in batch__90]
         batch_270 = [(self.rot_90(x,y)) for x,y in batch_180]
@@ -17,63 +18,63 @@ class DataAugmentor():
         batch += batch__90 + batch_180 + batch_270
         batch += [(self.flip_v(x,y)) for x,y in batch]
 
-        return batch
+        return zip(*batch)
 
-    @staticmethod
-    def rot_90_degrees(x,y):
+    @classmethod
+    def rot_90(cls, x, y):
         """
         Rotate 90 degrees anticlockwise
         """
-        old_directions = [self.compass['N'],
-                          self.compass['W'],
-                          self.compass['S'],
-                          self.compass['E']]
+        old_directions = [cls.compass['N'],
+                          cls.compass['W'],
+                          cls.compass['S'],
+                          cls.compass['E']]
 
-        new_directions = [self.compass['W'],
-                          self.compass['S'],
-                          self.compass['E'],
-                          self.compass['N']]
+        new_directions = [cls.compass['W'],
+                          cls.compass['S'],
+                          cls.compass['E'],
+                          cls.compass['N']]
 
         x = np.rot90(x, 1)
         y[:,:,old_directions] = y[:,:,new_directions]
 
         return np.ascontiguousarray(x), np.ascontiguousarray(y)
 
-    @staticmethod
-    def flip_v(x, y):
+    @classmethod
+    def flip_v(cls, x, y):
         """
         Flip the map vertically
         """
 
-        old_directions = [self.compass['N'],
-                          self.compass['W'],
-                          self.compass['S'],
-                          self.compass['E']]
+        old_directions = [cls.compass['N'],
+                          cls.compass['W'],
+                          cls.compass['S'],
+                          cls.compass['E']]
 
-        new_directions = [self.compass['N'],
-                          self.compass['E'],
-                          self.compass['S'],
-                          self.compass['W']]
+        new_directions = [cls.compass['N'],
+                          cls.compass['E'],
+                          cls.compass['S'],
+                          cls.compass['W']]
 
         x = x[:,::-1,:]
         y[:,:,old_directions] = y[:,:,new_directions]
 
         return np.ascontiguousarray(x), np.ascontiguousarray(y)
 
-    @staticmethod
-    def flip_h(x,y):
+    @classmethod
+    def flip_h(cls, x, y):
         """
         Flip the map horizontally
         """
-        old_directions = [self.compass['N'],
-                          self.compass['W'],
-                          self.compass['S'],
-                          self.compass['E']]
+        old_directions = [cls.compass['N'],
+                          cls.compass['W'],
+                          cls.compass['S'],
+                          cls.compass['E']]
 
-        new_directions = [self.compass['S'],
-                          self.compass['W'],
-                          self.compass['N'],
-                          self.compass['E']]
+        new_directions = [cls.compass['S'],
+                          cls.compass['W'],
+                          cls.compass['N'],
+                          cls.compass['E']]
 
 
         x_h = x[::-1,:,:]

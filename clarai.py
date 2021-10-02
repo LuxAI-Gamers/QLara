@@ -1,5 +1,6 @@
 from reward import BatchReward
 from model import QLModel
+from data_augmentor import DataAugmentor
 import math
 import sys
 import random
@@ -37,7 +38,7 @@ class Clara():
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
         self._model = QLModel(output_shape=output_shape)
-
+        self._data_augmentor = DataAugmentor()
         self._reward = BatchReward(self._lr,
                                    self._gamma,
                                    self.W_ACTIONS,
@@ -122,8 +123,8 @@ class Clara():
                                     self._old_state)
 
         if len(self._reward._memory) >= self._batch_length:
-            # TODO AUGMENTATION
             x_batch, y_batch = self._reward.get_batch()
+            x_batch, y_batch = self._data_augmentor.get_batch(x_batch,y_batch)
             self._reward.init()
             self._model.fit(x_batch, y_batch)
 
