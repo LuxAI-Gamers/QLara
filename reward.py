@@ -133,4 +133,4 @@ class BatchReward(Reward):
 
         self._memory = []
 
-        return np.array(x_batch), np.array(y_batch)
+        return x_batch, y_batch

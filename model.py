@@ -80,17 +80,17 @@ class QLModel():
 
         return partial(inception_function, f1=f1, f2=f2, f3=f3, f4=f4)
 
-    def fit(self, env_state, reward):
+    def fit(self, x, y):
 
-        dim = env_state.shape[1]
-        self._models[dim].fit(env_state,
-                              reward,
+        dim = x[0].shape[0]
+        self._models[dim].fit(np.array(x),
+                              np.array(y),
                               epochs=1,
                               verbose=1)
 
-    def predict(self, env_state):
-        dim = env_state.shape[0]
-        return self._models[dim].predict(np.asarray([env_state]))[0]
+    def predict(self, x):
+        dim = x.shape[0]
+        return self._models[dim].predict(np.asarray([x]))[0]
 
     def save(self, model_dir):
         timestamp = str(int(time.time()))
