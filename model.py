@@ -95,7 +95,7 @@ class QLModel():
     def save(self, model_dir):
         timestamp = str(int(time.time()))
 
-        os.mkdir(model_dir + '/' + timestamp)
+        os.makedirs(model_dir + '/' + timestamp, exist_ok=True)
         for name, model in self._models.items():
             model.save(model_dir + '/' + timestamp + '/' + f'model_{name}.h5')
 
