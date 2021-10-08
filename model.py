@@ -1,5 +1,5 @@
 import os
-import time
+from datetime import datetime
 from functools import partial
 
 import numpy as np
@@ -93,11 +93,13 @@ class QLModel():
         return self._models[dim].predict(np.asarray([x]))[0]
 
     def save(self, model_dir):
-        timestamp = str(int(time.time()))
+        timestamp = datetime.today().strftime('%Y-%m-%d-%H_%M_%S')
+        model_dir = os.path.join(model_dir, timestamp)
 
-        os.makedirs(model_dir + '/' + timestamp, exist_ok=True)
+        os.makedirs(model_dir, exist_ok=True)
         for name, model in self._models.items():
-            model.save(model_dir + '/' + timestamp + '/' + f'model_{name}.h5')
+            model_path = os.path.join(model_dir, f'model_{name}.h5')
+            model.save(model_path)
 
     def load(self, model_dir):
 
