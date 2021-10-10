@@ -26,14 +26,16 @@ class Clara():
         lambda x: x.pillage(),
     ]
 
-    def __init__(self):
+    def __init__(self, lr=0.01, gamma=0.95, epsilon=0.95, epsilon_final=0.01,
+                 epsilon_decay=0.995, batch_length=12, epochs=1):
 
-        self._lr = 0.01
-        self._gamma = 0.95
-        self._epsilon = 0.95
-        self._epsilon_final = 0.01
-        self._epsilon_decay = 0.995
-        self._batch_length = 12
+        self._lr = lr
+        self._gamma = gamma
+        self._epsilon = epsilon
+        self._epsilon_final = epsilon_final
+        self._epsilon_decay = epsilon_decay
+        self._batch_length = batch_length
+        self._epochs = epochs
 
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
@@ -126,7 +128,7 @@ class Clara():
             x_batch, y_batch = self._reward.get_batch()
             x_batch, y_batch = self._data_augmentor.get_batch(x_batch, y_batch)
             self._reward.init()
-            self._model.fit(x_batch, y_batch)
+            self._model.fit(x_batch, y_batch, epochs=self._epochs)
 
     def get_env_state(self):
         """
