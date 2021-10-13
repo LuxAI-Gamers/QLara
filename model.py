@@ -80,7 +80,7 @@ class QLModel():
 
         return partial(inception_function, f1=f1, f2=f2, f3=f3, f4=f4)
 
-    def fit(self, x, y, epochs = 1):
+    def fit(self, x, y, epochs=1):
 
         dim = x[0].shape[0]
         self._models[dim].fit(np.array(x),

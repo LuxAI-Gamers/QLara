@@ -46,9 +46,9 @@ if __name__ == '__main__':
 
     episodes = configuration['episodes']
     configuration.pop('episodes', None)
-    
+
     clara = Clara(**configuration)
-    
+
     for ep in range(episodes):
         clear_output()
         print(f"=== Episode {ep} ===")
