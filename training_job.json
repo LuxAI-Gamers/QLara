@@ -17,7 +17,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
       "Parameters": {
-        "TrainingJobName.$": "States.Format('Train-{}-{}', $.env.name, $.unique_id.execution_name)",
+        "TrainingJobName.$": "States.Format('Train-{}-{}', $.experiment_name, $.unique_id.execution_name)",
         "ResourceConfig": {
           "InstanceCount": 1,
           "InstanceType": "ml.m4.xlarge",
@@ -28,7 +28,7 @@
           "model_dir": "/opt/ml/model"
         },
         "AlgorithmSpecification": {
-          "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.env.name)",
+          "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.experiment_name)",
           "TrainingInputMode": "File",
           "MetricDefinitions" : [
                 {
@@ -46,7 +46,7 @@
             ]
         },
         "OutputDataConfig": {
-          "S3OutputPath.$": "States.Format('s3://lux-lucia/clarai/experiments/{}/models', $.env.name)"
+          "S3OutputPath.$": "States.Format('s3://lux-lucia/clarai/experiments/{}/models', $.experiment_name)"
         },
         "StoppingCondition": {
           "MaxRuntimeInSeconds": 100000
