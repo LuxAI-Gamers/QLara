@@ -1,21 +1,22 @@
-import math
-import sys
 import random
 
 from lux.game import Game
-from lux.game_map import Cell, RESOURCE_TYPES, Position
-from lux.game_objects import Unit
-from lux.constants import Constants
-from lux.game_constants import GAME_CONSTANTS
-from lux import annotate
 
 from clarai import Clara
 
+configuration = {
+    'lr': 0.01,
+    'gamma': 0.95,
+    'epsilon': 0.95,
+    'epsilon_final': 0.01,
+    'epsilon_decay': 0.995,
+    'batch_length': 12,
+    'epochs': 1,
+    'episodes': 25
+}
 
-clara = Clara()
 
-
-def agent(observation, configuration):
+def agent(observation):
     global game_state, clara
 
     ### Do not edit ###
@@ -30,7 +31,7 @@ def agent(observation, configuration):
     else:
         game_state._update(observation["updates"])
 
-    ### AI Code goes down here! ###
+        ### AI Code goes down here! ###
         actions = clara.play(game_state, observation)
 
     return actions
@@ -43,7 +44,10 @@ if __name__ == '__main__':
     from kaggle_environments import make
     from IPython.display import clear_output
 
-    episodes = 25
+    episodes = configuration['episodes'].pop('episodes')
+
+    clara = Clara(**configuration)
+
     for ep in range(episodes):
         clear_output()
         print(f"=== Episode {ep} ===")
