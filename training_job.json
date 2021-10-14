@@ -32,12 +32,16 @@
           "TrainingInputMode": "File",
           "MetricDefinitions" : [
                 {
-                    "Name": "train:error",
-                    "Regex": "Train_error=(.*?);"
+                    "Name": "train:total_rounds",
+                    "Regex": "total_rounds=(.*?);"
                 },
                 {
-                    "Name": "validation:error",
-                    "Regex": "Valid_error=(.*?);"
+                    "Name": "train:units_created",
+                    "Regex": "units_created=(.*?);"
+                },
+                {
+                    "Name": "train:cities_created",
+                    "Regex": "cities_created=(.*?);"
                 }
             ]
         },
