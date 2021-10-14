@@ -39,7 +39,8 @@ if __name__ == '__main__':
         total_rounds = len(steps)
         units_created = steps[-1][0]['observation']['globalUnitIDCount']
         cities_created = steps[-1][0]['observation']['globalCityIDCount']
-        print(f'total_rounds={total_rounds}; units_created={units_created}; cities_created={cities_created};')
+        print(
+            f'total_rounds={total_rounds}; units_created={units_created}; cities_created={cities_created};')
 
     clara._model.save(args["model_dir"])
     print(os.listdir(args["model_dir"]))
