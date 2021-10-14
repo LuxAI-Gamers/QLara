@@ -1,15 +1,12 @@
 name: Deploy to ECR
 
 on:
-  #workflow_dispatch:
-  #  inputs:
-  #    experiment_name:
-  #      description: 'Name of the experiment. No spaces'
-  #      required: true
-  #      default: 'experiment-0000'
-  pull_request:
-    branches: [ main ]
-  
+  workflow_dispatch:
+    inputs:
+      experiment_name:
+        description: 'Name of the experiment. No spaces'
+        required: true
+        default: 'experiment-0000'
 
 jobs:
   
@@ -38,8 +35,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: lux-clarai
-        #IMAGE_TAG: ${{github.event.inputs.experiment_name}}-cpu
-        IMAGE_TAG: experiment-0000-cpu
+        IMAGE_TAG: ${{github.event.inputs.experiment_name}}-cpu
       run: |
         docker build --file Dockerfile.cpu -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
