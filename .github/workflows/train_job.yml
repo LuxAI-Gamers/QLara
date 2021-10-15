@@ -1,4 +1,4 @@
-name: Deploy to ECR
+name: Create and run training job
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
   
   build:
     
-    name: Build and push Image
+    name: Build, push and run training job.
     runs-on: ubuntu-latest
    
     steps:
@@ -31,7 +31,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build and push image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: lux-clarai
@@ -39,3 +39,15 @@ jobs:
       run: |
         docker build --file Dockerfile.cpu -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Upload and run AWS state machine
+      env:
+        STEP_NAME: lux-clarai-trainjob-${{github.event.inputs.experiment_name}}
+        STEP_ROLE_ARN: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/StepFunctions-lux-clarai-trainjob
+        STEP_ARN: arn:aws:states:us-east-1:${{secrets.AWS_ACCOUNT_ID}}:stateMachine:lux-clarai-trainjob-${{github.event.inputs.experiment_name}}
+      run: |
+        aws stepfunctions create-state-machine --name $STEP_NAME --definition "`cat training_job.json`" --role-arn $STEP_ROLE_ARN
+        aws stepfunctions update-state-machine --state-machine-arn $STEP_ARN --definition "`cat training_job.json`"
+        aws stepfunctions start-execution --state-machine-arn $STEP_ARN --input '{"experiment_name":"${{github.event.inputs.experiment_name}}-cpu"}'
+  
+
