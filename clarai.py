@@ -1,12 +1,12 @@
-from reward import BatchReward
-from model import QLModel
-from data_augmentor import DataAugmentor
-import math
-import sys
 import random
 
 import numpy as np
 from lux.constants import Constants
+
+from model import QLModel
+from reward import BatchReward
+from data_augmentor import DataAugmentor
+
 DIRECTIONS = Constants.DIRECTIONS
 
 
@@ -26,7 +26,7 @@ class Clara():
         lambda x: x.pillage(),
     ]
 
-    def __init__(self, lr=0.01, gamma=0.95, epsilon=0.95, epsilon_final=0.01,
+    def __init__(self, logger, lr=0.01, gamma=0.95, epsilon=0.95, epsilon_final=0.01,
                  epsilon_decay=0.995, batch_length=12, epochs=1):
 
         self._lr = lr
@@ -39,7 +39,7 @@ class Clara():
 
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
 
-        self._model = QLModel(output_shape=output_shape)
+        self._model = QLModel(output_shape=output_shape, logger=logger)
         self._data_augmentor = DataAugmentor()
         self._reward = BatchReward(self._lr,
                                    self._gamma,

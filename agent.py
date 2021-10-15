@@ -1,3 +1,5 @@
+from datetime import datetime
+import logging
 import random
 
 from lux.game import Game
@@ -12,9 +14,8 @@ configuration = {
     'epsilon_decay': 0.995,
     'batch_length': 12,
     'epochs': 1,
-    'episodes': 25
+    'episodes': 1
 }
-
 
 def agent(observation):
     global game_state, clara
@@ -44,24 +45,51 @@ if __name__ == '__main__':
     from kaggle_environments import make
     from IPython.display import clear_output
 
-    episodes = configuration['episodes'].pop('episodes')
+    # Set logger
+    logger = logging.Logger('ClarAI')
+    fh = logging.FileHandler(f'{datetime.now().strftime("%Y-%m-%d-%X")}.log')
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(logging.Formatter("%(asctime)s %(name)s: %(levelname)s:: %(message)s"))
+    logger.addHandler(fh)
 
-    clara = Clara(**configuration)
+    logger.info('===== Welcome to ClarAI =====')
+    logger.info(configuration)
+
+    episodes = configuration['episodes']
+    configuration.pop('episodes')
+
+    clara = Clara(**configuration, logger=logger)
 
     for ep in range(episodes):
+        logger.info(f"=== Episode {ep} ===")
         clear_output()
-        print(f"=== Episode {ep} ===")
         env = make("lux_ai_2021",
                    configuration={"seed": random.randint(0, 99999999),
                                   "loglevel": 1,
                                   "annotations": True},
                    debug=True)
-
-        steps = env.run([agent, "simple_agent"])
-    print([step[0]['action'] for step in steps])
-
+        
+        env.run([agent, "simple_agent"])
+        if ep % 1000 == 0 and ep > 0:
+            logger.info(json.dumps(env.toJSON()))
+        else:
+            # Create mini dict with info
+            mini_env = {
+                'id': env.id,
+                'rewards': [env.state[0]['reward'], env.state[1]['reward']],
+                'seed': env.configuration.seed,
+                'height': env.steps[0][0]['observation']['height'],
+                'width': env.steps[0][0]['observation']['width'],
+                'actions': [step[0]['action'] for step in env.steps],
+                'cities': [
+                    [{
+                        'CityCount': step[0]['observation']['globalCityIDCount'],
+                        'UnitCount': step[0]['observation']['globalUnitIDCount']
+                    }]
+                    for step in env.steps
+                ]
+            }
+            logger.info(json.dumps(mini_env))
+           
     clara._model.save('models')
-
-    replay = env.toJSON()
-    with open("replay.json", "w") as f:
-        json.dump(replay, f)
+        

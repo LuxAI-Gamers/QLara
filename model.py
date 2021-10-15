@@ -1,15 +1,24 @@
 import os
+import logging
 from datetime import datetime
 from functools import partial
 
 import numpy as np
 import tensorflow as tf
-#import tensorflow_hub as hub
+from keras.callbacks import Callback
+
+
+class CustomCallback(Callback):
+    def __init__(self, logger):
+        self.logger = logger
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.logger.info(f'Training end epoch {epoch}; loss {logs["loss"]}')
 
 
 class QLModel():
 
-    def __init__(self, output_shape):
+    def __init__(self, output_shape, logger):
 
         self._output_shape = output_shape
         self._models = {}
@@ -18,6 +27,8 @@ class QLModel():
                                     name='Game map')
 
             self._models[dim] = self.build_network(inputs)
+
+        self.logger = logger
 
     def build_network(self, inputs):
 
@@ -86,7 +97,8 @@ class QLModel():
         self._models[dim].fit(np.array(x),
                               np.array(y),
                               epochs=epochs,
-                              verbose=1)
+                              verbose=0,
+                              callbacks=[CustomCallback(self.logger)])
 
     def predict(self, x):
         dim = x.shape[0]
