@@ -39,3 +39,15 @@ jobs:
       run: |
         docker build --file Dockerfile.cpu -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+    - name: Upload and run AWS state machine
+      env:
+        STEP_NAME: lux-clarai-trainjob-${{github.event.inputs.experiment_name}}
+        STEP_ROLE_ARN: arn:aws:iam::${{secrets.AWS_ACCOUNT_ID}}:role/StepFunctions-lux-clarai-trainjob
+        STEP_ARN: arn:aws:states:us-east-1:${{secrets.AWS_ACCOUNT_ID}}:stateMachine:lux-clarai-trainjob-${{github.event.inputs.experiment_name}}
+      run:
+        aws stepfunctions create-state-machine --name $STEP_NAME --definition "`cat training_job.json`" --role-arn $STEP_ROLE_ARN
+        aws stepfunctions update-state-machine --state-machine-arn $STEP_ARN --definition "`cat training_job.json`"
+        aws stepfunctions start-execution --state-machine-arn $STEP_ARN --input '{"experiment_name":"${{github.event.inputs.experiment_name}}-cpu"}'
+  
+
