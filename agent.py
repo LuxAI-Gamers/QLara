@@ -17,6 +17,7 @@ configuration = {
     'episodes': 1
 }
 
+
 def agent(observation):
     global game_state, clara
 
@@ -49,7 +50,8 @@ if __name__ == '__main__':
     logger = logging.Logger('ClarAI')
     fh = logging.FileHandler(f'{datetime.now().strftime("%Y-%m-%d-%X")}.log')
     fh.setLevel(logging.INFO)
-    fh.setFormatter(logging.Formatter("%(asctime)s %(name)s: %(levelname)s:: %(message)s"))
+    fh.setFormatter(logging.Formatter(
+        "%(asctime)s %(name)s: %(levelname)s:: %(message)s"))
     logger.addHandler(fh)
 
     logger.info('===== Welcome to ClarAI =====')
@@ -68,7 +70,7 @@ if __name__ == '__main__':
                                   "loglevel": 1,
                                   "annotations": True},
                    debug=True)
-        
+
         env.run([agent, "simple_agent"])
         if ep % 1000 == 0 and ep > 0:
             logger.info(json.dumps(env.toJSON()))
@@ -90,6 +92,5 @@ if __name__ == '__main__':
                 ]
             }
             logger.info(json.dumps(mini_env))
-           
+
     clara._model.save('models')
-        

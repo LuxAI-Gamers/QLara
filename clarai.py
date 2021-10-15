@@ -26,8 +26,16 @@ class Clara():
         lambda x: x.pillage(),
     ]
 
-    def __init__(self, logger, lr=0.01, gamma=0.95, epsilon=0.95, epsilon_final=0.01,
-                 epsilon_decay=0.995, batch_length=12, epochs=1):
+    def __init__(
+            self,
+            logger,
+            lr=0.01,
+            gamma=0.95,
+            epsilon=0.95,
+            epsilon_final=0.01,
+            epsilon_decay=0.995,
+            batch_length=12,
+            epochs=1):
 
         self._lr = lr
         self._gamma = gamma
