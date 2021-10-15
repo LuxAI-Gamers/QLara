@@ -81,7 +81,7 @@ if __name__ == '__main__':
                 'height': env.steps[0][0]['observation']['height'],
                 'width': env.steps[0][0]['observation']['width'],
                 'actions': [step[0]['action'] for step in env.steps],
-                'cities': [
+                'posessions': [
                     [{
                         'CityCount': step[0]['observation']['globalCityIDCount'],
                         'UnitCount': step[0]['observation']['globalUnitIDCount']
