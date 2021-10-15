@@ -1,0 +1,65 @@
+{
+  "Comment": "Iterator State Machine Example",
+  "StartAt": "ExtractExecutionContext",
+  "States": {
+
+    "ExtractExecutionContext": {
+      "Parameters": {
+        "execution_name.$": "$$.Execution.Name",
+        "execution_date.$": "$$.Execution.StartTime"
+      },
+      "Type": "Pass",
+      "ResultPath": "$.unique_id",
+      "Next": "Train"
+    },
+
+    "Train": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
+      "Parameters": {
+        "TrainingJobName.$": "States.Format('Train-{}-{}', $.experiment_name, $.unique_id.execution_name)",
+        "ResourceConfig": {
+          "InstanceCount": 1,
+          "InstanceType": "ml.m4.xlarge",
+          "VolumeSizeInGB": 5
+        },
+        "HyperParameters": {
+          "episodes": "2",
+          "model_dir": "/opt/ml/model"
+        },
+        "AlgorithmSpecification": {
+          "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.experiment_name)",
+          "TrainingInputMode": "File",
+          "MetricDefinitions" : [
+                {
+                    "Name": "train:total_rounds",
+                    "Regex": "total_rounds=(.*?);"
+                },
+                {
+                    "Name": "train:units_created",
+                    "Regex": "units_created=(.*?);"
+                },
+                {
+                    "Name": "train:cities_created",
+                    "Regex": "cities_created=(.*?);"
+                }
+            ]
+        },
+        "OutputDataConfig": {
+          "S3OutputPath.$": "States.Format('s3://lux-lucia/clarai/experiments/{}/models', $.experiment_name)"
+        },
+        "StoppingCondition": {
+          "MaxRuntimeInSeconds": 100000
+        },
+        "RoleArn": "arn:aws:iam::721396535024:role/AmazonSageMaker-ExecutionRole-lux-clarai-trainjob"
+      },
+      "ResultPath": "$.result",
+      "Next": "Done"
+    },
+
+    "Done": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}
