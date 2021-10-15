@@ -51,7 +51,7 @@
         "StoppingCondition": {
           "MaxRuntimeInSeconds": 100000
         },
-        "RoleArn": "arn:aws:iam::721396535024:role/service-role/AmazonSageMaker-ExecutionRole-20211007T132597"
+        "RoleArn": "arn:aws:iam::721396535024:role/AmazonSageMaker-ExecutionRole-lux-clarai-trainjob"
       },
       "ResultPath": "$.result",
       "Next": "Done"
