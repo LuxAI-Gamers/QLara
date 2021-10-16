@@ -49,7 +49,7 @@
                 },
                 {
                     "Name": "train:loss",
-                    "Regex": "epoch (\d+)::[\t ]+(.*?);"
+                    "Regex": "epoch (\\d+)::[\t ]+(.*?);"
               }
             ]
         },
