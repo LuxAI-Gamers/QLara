@@ -4,7 +4,12 @@ from functools import partial
 
 import numpy as np
 import tensorflow as tf
-#import tensorflow_hub as hub
+from keras.callbacks import Callback
+
+class CustomCallback(Callback):
+
+    def on_epoch_end(self, epoch, logs=None):
+        print(f'epoch {epoch}::\t {logs["loss"]};')
 
 
 class QLModel():
@@ -86,7 +91,8 @@ class QLModel():
         self._models[dim].fit(np.array(x),
                               np.array(y),
                               epochs=epochs,
-                              verbose=1)
+                              verbose=0,
+                              callbacks=[CustomCallback()])
 
     def predict(self, x):
         dim = x.shape[0]

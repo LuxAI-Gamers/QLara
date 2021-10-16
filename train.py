@@ -56,6 +56,7 @@ if __name__ == '__main__':
     # Extract external parameters from Clarai configuration
     episodes = int(configuration.pop('episodes'))
     model_dir = configuration.pop('model_dir')
+    games_dir = configuration.pop('games_dir')
 
     # Create Clarai agent with configuration
     clara = Clara(**configuration)
@@ -82,17 +83,18 @@ if __name__ == '__main__':
         cities_created = env.steps[-1][0]['observation']['globalCityIDCount']
         
         print(f'''
-            id::\t {id}
-            seed::\t {seed}
-            winner::\t {rewards.index(max(rewards))}
-            board::\t {board_length}
-            rounds::\t {total_rounds}
-            units::\t {units_created}
-            cities::\t {cities_created}
+            id::\t {id};
+            seed::\t {seed};
+            winner::\t {rewards.index(max(rewards))};
+            board::\t {board_length};
+            rounds::\t {total_rounds};
+            units::\t {units_created};
+            cities::\t {cities_created};
         ''')
 
         # Save model, max 20 models
-        modulus = ep // 20
+        # ifelse to avoid % by 0
+        modulus = ep // 20 if ep // 20 != 0 else 1 
         if ep % modulus == 0 and ep > 0:
             clara._model.save(model_dir)
             with open(f"{configuration['games_dir']}/replay_{ep}.json", "w") as f:
