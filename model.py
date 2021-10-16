@@ -9,7 +9,8 @@ from keras.callbacks import Callback
 class CustomCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
-        print(f'epoch {epoch}::\t {logs["loss"]};')
+        epoch_print = f'epoch {epoch}::'
+        print("{: <20} {: <20}".format(epoch_print, logs["loss"]))
 
 
 class QLModel():

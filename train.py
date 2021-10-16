@@ -73,25 +73,21 @@ if __name__ == '__main__':
 
         env.run([agent, "simple_agent"])
 
-        # Print metrics    
-        id = env.id
-        seed = env.configuration.seed
+        # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
-        board_length = env.steps[0][0]['observation']['width']
-        total_rounds = len(env.steps[0])
-        units_created = env.steps[-1][0]['observation']['globalUnitIDCount']
-        cities_created = env.steps[-1][0]['observation']['globalCityIDCount']
+        table_data = [
+            ['id::', env.id],
+            ['seed::', env.configuration.seed], 
+            ['rewards::', rewards.index(max(rewards))],
+            ['board::', env.steps[0][0]['observation']['width']],
+            ['rounds::', len(env.steps)],
+            ['units::', env.steps[-1][0]['observation']['globalUnitIDCount']],
+            ['cities::', env.steps[-1][0]['observation']['globalCityIDCount']]
+        ]
+        for row in table_data:
+            print("{: <20} {: <20}".format(*row))
         
-        print(f'''
-            id::\t {id};
-            seed::\t {seed};
-            winner::\t {rewards.index(max(rewards))};
-            board::\t {board_length};
-            rounds::\t {total_rounds};
-            units::\t {units_created};
-            cities::\t {cities_created};
-        ''')
-
+        
         # Save model, max 20 models
         # ifelse to avoid % by 0
         modulus = ep // 20 if ep // 20 != 0 else 1 
