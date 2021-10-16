@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from keras.callbacks import Callback
 
+
 class CustomCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):

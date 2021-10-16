@@ -77,7 +77,7 @@ if __name__ == '__main__':
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
         table_data = [
             ['id::', env.id],
-            ['seed::', env.configuration.seed], 
+            ['seed::', env.configuration.seed],
             ['winner::', rewards.index(max(rewards))],
             ['board::', env.steps[0][0]['observation']['width']],
             ['rounds::', len(env.steps)],
@@ -86,11 +86,10 @@ if __name__ == '__main__':
         ]
         for row in table_data:
             print("{: <20} {: <20}".format(*row))
-        
-        
+
         # Save model, max 20 models
         # ifelse to avoid % by 0
-        modulus = ep // 20 if ep // 20 != 0 else 1 
+        modulus = ep // 20 if ep // 20 != 0 else 1
         if (ep % modulus == 0 and ep > 0) or ep == episodes - 1:
             clara._model.save(model_dir)
             with open(f"{configuration['games_dir']}/replay_{ep}.json", "w") as f:
