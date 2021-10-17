@@ -93,5 +93,5 @@ if __name__ == '__main__':
         modulus = ep // 20 if ep // 20 != 0 else 1
         if (ep % modulus == 0 and ep > 0) or ep == episodes - 1:
             clara._model.save(model_dir)
-            with open(f"{configuration['games_dir']}/replay_{ep}.json", "w") as f:
+            with open(f"{games_dir}/replay_{ep}.json", "w") as f:
                 json.dump(env.toJSON(), f)
