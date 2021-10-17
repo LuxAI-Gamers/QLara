@@ -17,7 +17,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
       "Parameters": {
-        "TrainingJobName.$": "States.Format('Train-{}-{}', $.experiment_name, $.unique_id.execution_name)",
+        "TrainingJobName.$": "States.Format('Train-{}', $.unique_id.execution_name)",
         "ResourceConfig": {
           "InstanceCount": 1,
           "InstanceType": "ml.m4.xlarge",
