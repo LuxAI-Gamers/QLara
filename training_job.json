@@ -33,23 +33,23 @@
           "MetricDefinitions" : [
                 {
                     "Name": "train:total_rounds",
-                    "Regex": "rounds::[\t ]+(.*?);"
+                    "Regex": "rounds::(.*?);"
                 },
                 {
                     "Name": "train:units_created",
-                    "Regex": "units::[\t ]+(.*?);"
+                    "Regex": "units::(.*?);"
                 },
                 {
                     "Name": "train:cities_created",
-                    "Regex": "cities::[\t ]+(.*?);"
+                    "Regex": "cities::(.*?);"
                 },
                 {
                     "Name": "train:winner",
-                    "Regex": "winner::[\t ]+(.*?);"
+                    "Regex": "winner::(.*?);"
                 },
                 {
                     "Name": "train:loss",
-                    "Regex": "epoch (\\d+)::[\t ]+(.*?);"
+                    "Regex": "epoch \\d+::(.*?);"
               }
             ]
         },

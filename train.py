@@ -86,7 +86,7 @@ if __name__ == '__main__':
             ['cities::', env.steps[-1][0]['observation']['globalCityIDCount']]
         ]
         for row in table_data:
-            print("{: <20} {: <20}".format(*row))
+            print("{}{};".format(*row))
 
         # Save model, max 20 models
         # ifelse to avoid % by 0
