@@ -57,6 +57,7 @@ if __name__ == '__main__':
     episodes = int(configuration.pop('episodes'))
     model_dir = configuration.pop('model_dir')
     games_dir = configuration.pop('games_dir')
+    os.makedirs(games_dir, exist_ok=True)
 
     # Create Clarai agent with configuration
     clara = Clara(**configuration)
