@@ -88,10 +88,9 @@ if __name__ == '__main__':
         for row in table_data:
             print("{}{};".format(*row))
 
-        # Save model, max 20 models
-        # ifelse to avoid % by 0
-        modulus = ep // 20 if ep // 20 != 0 else 1
-        if (ep % modulus == 0 and ep > 0) or ep == episodes - 1:
+        # Save model in this episodes:
+        episodes_to_save = [1, 2, 100, 200, 500, 1000, 2000, 3000, 4000, 5000, 7500, 10000, episodes-1]
+        if ep in episodes_to_save:
             clara._model.save(model_dir)
             with open(f"{games_dir}/replay_{ep}.json", "w") as f:
                 json.dump(env.toJSON(), f)
