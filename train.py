@@ -79,7 +79,7 @@ if __name__ == '__main__':
         table_data = [
             ['id::', env.id],
             ['seed::', env.configuration.seed],
-            ['winner::', rewards.index(max(rewards))],
+            #['winner::', rewards.index(max(rewards))],
             ['board::', env.steps[0][0]['observation']['width']],
             ['rounds::', len(env.steps)],
             ['units::', env.steps[-1][0]['observation']['globalUnitIDCount']],
