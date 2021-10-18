@@ -4,7 +4,7 @@ from functools import partial
 
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import Callback
+from tensorflow.keras.callbacks import Callback
 
 
 class CustomCallback(Callback):
