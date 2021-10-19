@@ -41,7 +41,9 @@ class BatchReward(Reward):
         old_reward = old_state['observation']['reward']
         new_reward = new_state['observation']['reward']
 
-        reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
+        #reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
+        reward = 1 if new_reward >= old_reward else -0.2
+        reward = 0 if new_reward == old_reward elser reward
 
         return reward
 
@@ -75,10 +77,7 @@ class BatchReward(Reward):
 
     def correct_old_prediction(self, new_state, old_state, reward):
 
-        old_x = old_state['x']
         old_y = old_state['y']
-
-        new_x = new_state['x']
         new_y = new_state['y']
 
         game_state = old_state['game_state']
@@ -121,12 +120,13 @@ class BatchReward(Reward):
             new_y = new_state['y']
 
             reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
+            
             reward_matrix = self.validate_actions(
                 new_state, old_state, reward_matrix)
             reward_matrix = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
 
-            reward_matrix = (1 - self._lr) * new_y + self._lr * reward_matrix
+            reward_matrix = (1 - self._lr) * old_y + self._lr * reward_matrix
 
             x_batch.append(old_x)
             y_batch.append(reward_matrix)
