@@ -37,7 +37,7 @@ jobs:
         ECR_REPOSITORY: lux-clarai
         IMAGE_TAG: ${{github.event.inputs.experiment_name}}-cpu
       run: |
-        docker build --file Dockerfile.cpu -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build --no-cache --file Dockerfile.cpu -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
     - name: Upload and run AWS state machine
