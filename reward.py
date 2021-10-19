@@ -43,7 +43,7 @@ class BatchReward(Reward):
 
         #reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
         reward = 1 if new_reward >= old_reward else -0.2
-        reward = 0 if new_reward == old_reward elser reward
+        reward = 0 if new_reward == old_reward else reward
 
         return reward
 
@@ -60,7 +60,9 @@ class BatchReward(Reward):
         old_player = old_game_state.players[old_observation.player]
         new_player = new_game_state.players[new_observation.player]
 
-        units_that_acted = [action.split(' ')[1] for action in actions]
+        units_that_acted = [a for a in actions if 'u_' in a]
+        units_that_acted = [a.split(' ')[1] for a in units_that_acted]
+
         for new_unit in new_player.units:
             for old_unit in old_player.units:
                 if new_unit.id == old_unit.id and \
@@ -73,7 +75,17 @@ class BatchReward(Reward):
                     if new_unit.id in units_that_acted:
                         reward[new_unit.pos.y, new_unit.pos.x] = -1
 
+        cities_that_acted = [a for a in actions if a[0:2] in ['bw','r ']]
+        cities_that_acted = [[int(a.split(' ')[2]), int(a.split(' ')[1])]
+                              for a in cities_that_acted]
+
+        for city in new_player.cities.values():
+            for citytile in city.citytiles:
+                if citytile.cooldown==0:
+                    if [citytile.pos.y, citytile.pos.x] in cities_that_acted:
+                        reward[citytile.pos.y, citytile.pos.x] = -1
         return reward
+
 
     def correct_old_prediction(self, new_state, old_state, reward):
 

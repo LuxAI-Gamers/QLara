@@ -44,7 +44,7 @@ if __name__ == '__main__':
     from kaggle_environments import make
     from IPython.display import clear_output
 
-    episodes = configuration['episodes'].pop('episodes')
+    episodes = configuration.pop('episodes')
 
     clara = Clara(**configuration)
 
