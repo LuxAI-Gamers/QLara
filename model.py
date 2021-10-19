@@ -11,7 +11,7 @@ class CustomCallback(Callback):
 
     def on_epoch_end(self, epoch, logs=None):
         epoch_print = f'epoch {epoch}::'
-        print("{: <20} {: <20}".format(epoch_print, logs["loss"]))
+        print("{}{};".format(epoch_print, logs["loss"]))
 
 
 class QLModel():

@@ -57,6 +57,7 @@ if __name__ == '__main__':
     episodes = int(configuration.pop('episodes'))
     model_dir = configuration.pop('model_dir')
     games_dir = configuration.pop('games_dir')
+    os.makedirs(games_dir, exist_ok=True)
 
     # Create Clarai agent with configuration
     clara = Clara(**configuration)
@@ -78,19 +79,31 @@ if __name__ == '__main__':
         table_data = [
             ['id::', env.id],
             ['seed::', env.configuration.seed],
-            ['winner::', rewards.index(max(rewards))],
+            #['winner::', rewards.index(max(rewards))],
             ['board::', env.steps[0][0]['observation']['width']],
             ['rounds::', len(env.steps)],
             ['units::', env.steps[-1][0]['observation']['globalUnitIDCount']],
             ['cities::', env.steps[-1][0]['observation']['globalCityIDCount']]
         ]
         for row in table_data:
-            print("{: <20} {: <20}".format(*row))
+            print("{}{};".format(*row))
 
-        # Save model, max 20 models
-        # ifelse to avoid % by 0
-        modulus = ep // 20 if ep // 20 != 0 else 1
-        if (ep % modulus == 0 and ep > 0) or ep == episodes - 1:
+        # Save model in this episodes:
+        episodes_to_save = [
+            1,
+            2,
+            100,
+            200,
+            500,
+            1000,
+            2000,
+            3000,
+            4000,
+            5000,
+            7500,
+            10000,
+            episodes - 1]
+        if ep in episodes_to_save:
             clara._model.save(model_dir)
-            with open(f"{configuration['games_dir']}/replay_{ep}.json", "w") as f:
+            with open(f"{games_dir}/replay_{ep}.json", "w") as f:
                 json.dump(env.toJSON(), f)

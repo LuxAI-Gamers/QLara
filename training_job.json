@@ -17,7 +17,7 @@
       "Type": "Task",
       "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
       "Parameters": {
-        "TrainingJobName.$": "States.Format('Train-{}-{}', $.experiment_name, $.unique_id.execution_name)",
+        "TrainingJobName.$": "States.Format('Train-{}', $.unique_id.execution_name)",
         "ResourceConfig": {
           "InstanceCount": 1,
           "InstanceType": "ml.m4.xlarge",
@@ -25,7 +25,8 @@
         },
         "HyperParameters": {
           "episodes": "2",
-          "model_dir": "/opt/ml/model"
+          "model_dir": "/opt/ml/model/models",
+          "games_dir": "/opt/ml/model/games"
         },
         "AlgorithmSpecification": {
           "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.experiment_name)",
@@ -33,23 +34,23 @@
           "MetricDefinitions" : [
                 {
                     "Name": "train:total_rounds",
-                    "Regex": "rounds::[\t ]+(.*?);"
+                    "Regex": "rounds::(.*?);"
                 },
                 {
                     "Name": "train:units_created",
-                    "Regex": "units::[\t ]+(.*?);"
+                    "Regex": "units::(.*?);"
                 },
                 {
                     "Name": "train:cities_created",
-                    "Regex": "cities::[\t ]+(.*?);"
+                    "Regex": "cities::(.*?);"
                 },
                 {
                     "Name": "train:winner",
-                    "Regex": "winner::[\t ]+(.*?);"
+                    "Regex": "winner::(.*?);"
                 },
                 {
                     "Name": "train:loss",
-                    "Regex": "epoch (\\d+)::[\t ]+(.*?);"
+                    "Regex": "epoch \\d+::(.*?);"
               }
             ]
         },
