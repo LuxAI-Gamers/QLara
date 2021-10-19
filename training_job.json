@@ -24,9 +24,15 @@
           "VolumeSizeInGB": 5
         },
         "HyperParameters": {
-          "episodes": "2",
+          "episodes": 10000,
           "model_dir": "/opt/ml/model/models",
-          "games_dir": "/opt/ml/model/games"
+          "games_dir": "/opt/ml/model/games",
+          "lr": 0.1,
+          "gamma": 0.95,
+          "epsilon": 0.95,
+          "epsilon_final": 0.1,
+          "epsilon_decay": 0.995,
+          "batch_length": 12
         },
         "AlgorithmSpecification": {
           "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.experiment_name)",
