@@ -20,14 +20,14 @@
         "TrainingJobName.$": "States.Format('Train-{}', $.unique_id.execution_name)",
         "ResourceConfig": {
           "InstanceCount": 1,
-          "InstanceType": "ml.m4.xlarge",
+          "InstanceType": "ml.c5.9xlarge",
           "VolumeSizeInGB": 5
         },
         "HyperParameters": {
           "episodes": "10000",
           "model_dir": "/opt/ml/model/models",
           "games_dir": "/opt/ml/model/games",
-          "lr": "0.1",
+          "lr": "0.5",
           "gamma": "0.95",
           "epsilon": "0.95",
           "epsilon_final": "0.1",
