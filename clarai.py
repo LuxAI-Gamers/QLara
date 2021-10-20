@@ -110,7 +110,7 @@ class Clara():
 
         y = self._model.predict(x)
 
-        if random.random() > self._epsilon:
+        if random.random() < self._epsilon:
             y = np.random.rand(*y.shape)
 
         return y
