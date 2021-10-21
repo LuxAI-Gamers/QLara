@@ -45,7 +45,7 @@ def convert_to_proper_type(str_v):
 configuration = {
     'lr': 0.5,
     'gamma': 0.95,
-    'epsilon': 0.95,
+    'epsilon': 0.5,
     'epsilon_final': 0.01,
     'epsilon_decay': 0.995,
     'batch_length': 12,
