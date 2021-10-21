@@ -43,14 +43,14 @@ def convert_to_proper_type(str_v):
 
 
 configuration = {
-    'lr': 0.01,
+    'lr': 0.5,
     'gamma': 0.95,
     'epsilon': 0.95,
     'epsilon_final': 0.01,
     'epsilon_decay': 0.995,
     'batch_length': 12,
     'epochs': 1,
-    'episodes': 1,
+    'episodes': 1000,
     'model_dir': './models',
     'games_dir': './games'
 }
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         clear_output()
         print(f"==== Episode {ep} ====")
         env = make("lux_ai_2021",
-                   configuration={"seed": random.randint(0, 99999999),
+                   configuration={"seed": 666,
                                   "loglevel": 1,
                                   "annotations": True},
                    debug=True)
