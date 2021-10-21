@@ -92,10 +92,11 @@ if __name__ == '__main__':
 
         # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
+        winner = max(rewards)
         table_data = [
             ['id::', env.id],
             ['seed::', env.configuration.seed],
-            #['winner::', rewards.index(max(rewards))],
+            ['winner::', rewards.index(winner)],
             ['board::', env.steps[0][0]['observation']['width']],
             ['rounds::', len(env.steps)],
             ['units::', env.steps[-1][0]['observation']['globalUnitIDCount']],
