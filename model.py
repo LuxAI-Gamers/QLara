@@ -44,7 +44,7 @@ class QLModel():
 
         model = tf.keras.Model(inputs=inputs, outputs=x)
 
-        model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
+        model.compile(loss=tf.keras.losses.Huber(),
                       optimizer='adam')
 
         return model
