@@ -20,7 +20,7 @@
         "TrainingJobName.$": "States.Format('Train-{}', $.unique_id.execution_name)",
         "ResourceConfig": {
           "InstanceCount": 1,
-          "InstanceType": "ml.c5.9xlarge",
+          "InstanceType": "ml.m4.xlarge",
           "VolumeSizeInGB": 5
         },
         "HyperParameters": {
