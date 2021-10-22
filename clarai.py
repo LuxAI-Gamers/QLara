@@ -127,7 +127,8 @@ class Clara():
         new_y = self._reward.update(self._new_state,
                                     self._old_state)
 
-        if len(self._reward._memory) >= self._batch_length:
+        if self._old_state['game_state'].turn == 40:
+        #if len(self._reward._memory) >= self._batch_length:
             x_batch, y_batch = self._reward.get_batch()
             x_batch, y_batch = self._data_augmentor.get_batch(x_batch, y_batch)
             self._reward.init()
