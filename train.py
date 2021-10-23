@@ -83,7 +83,7 @@ if __name__ == '__main__':
         clear_output()
         print(f"==== Episode {ep} ====")
         env = make("lux_ai_2021",
-                   configuration={"seed": 666,
+                   configuration={"seed": 7,
                                   "loglevel": 1,
                                   "annotations": True},
                    debug=True)
