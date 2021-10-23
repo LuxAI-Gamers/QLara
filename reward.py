@@ -38,15 +38,30 @@ class BatchReward(Reward):
     def reward_function(self, new_state, old_state):
         """
         """
-        old_reward = old_state['observation']['reward']
-        new_reward = new_state['observation']['reward']
+        #old_reward = old_state['observation']['reward']
+        #new_reward = new_state['observation']['reward']
 
-        #reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
-        reward = 1 if new_reward >= old_reward else -0.2
-        reward = 0 if new_reward == old_reward else reward
+        #reward = 1 if new_reward >= old_reward else -0.2
+        #reward = 0 if new_reward == old_reward else reward
 
+        game_state = new_state['game_state']
+        observation = new_state['observation']
+
+        player = game_state.players[observation.player]
+        opponent = game_state.players[(observation.player + 1) % 2]
+        
+        r_player = sum([len(city.citytiles) for city in player.cities.values()])
+        r_opponent = sum([len(city.citytiles) for city in opponent.cities.values()])
+
+        r_player = r_player*10 + len(player.units)
+        r_opponent = r_player*10 + len(opponent.units)
+                
+        reward = 1 if r_player >= r_opponent else -0.2
+        reward = 0 if r_player == r_opponent else reward
+        
         return reward
 
+    
     def validate_actions(self, new_state, old_state, reward):
 
         actions = old_state['actions']
