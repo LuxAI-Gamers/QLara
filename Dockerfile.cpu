@@ -1,4 +1,4 @@
-FROM tensorflow/tensorflow
+FROM ubuntu:18.04
 
 # Basic setup
 RUN apt-get update && apt-get install -y -q --no-install-recommends \
@@ -24,13 +24,33 @@ RUN . $NVM_DIR/nvm.sh \
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
+# ### Install Python ###
+# Python 3.7
+RUN apt-get update && apt-get install -y \
+        python3.7 \
+        python3-pip \
+        ipython3
+# Set Python3.7 as default
+RUN ln -s python3.7 /usr/bin/python
+RUN ln -s pip3 /usr/bin/pip
+
 ### Install Lux AI ###
-RUN npm i -g @lux-ai/2021-challenge@latest
+# Recommended game engine:
+# RUN npm i -g @lux-ai/2021-challenge@latest
+
+# Alternative game engine (claiming 45x faster performance)
+#RUN apt-get update && apt-get install -y python3.7-dev
+RUN apt-get update && apt-get install -y git
+RUN python3.7 -m pip install --upgrade pip
+RUN python3.7 -m pip install --upgrade setuptools
+#RUN python3.7 -m pip install numpy Cython
+RUN git clone https://github.com/glmcdona/LuxPythonEnvGym
+RUN cd LuxPythonEnvGym && python3.7 setup.py install
 
 ### ClarAI setup ###
 WORKDIR /root
 COPY ./requirements_cpu.txt .
-RUN pip install -r requirements_cpu.txt
+RUN python3.7 -m pip install --ignore-installed -r requirements_cpu.txt
 
 ADD . .
 
