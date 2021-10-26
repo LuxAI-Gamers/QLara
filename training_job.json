@@ -24,7 +24,7 @@
           "VolumeSizeInGB": 5
         },
         "HyperParameters": {
-          "episodes": 2,
+          "episodes": "2",
           "model_dir": "/opt/ml/model/models",
           "games_dir": "/opt/ml/model/games"
         },

@@ -84,6 +84,9 @@ class Clara():
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
         x = self.get_env_state()
         y = np.zeros((x.shape[0], x.shape[1], output_shape))
+                    
+        if self._epsilon>self._epsilon_final:
+            self._epsilon = self._epsilon*self._epsilon_decay
 
         self._new_state['x'] = x
         self._new_state['y'] = y

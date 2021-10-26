@@ -4,7 +4,7 @@ from functools import partial
 
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import Callback
+from tensorflow.keras.callbacks import Callback
 
 
 class CustomCallback(Callback):
@@ -44,7 +44,7 @@ class QLModel():
 
         model = tf.keras.Model(inputs=inputs, outputs=x)
 
-        model.compile(loss=tf.keras.losses.CategoricalCrossentropy(),
+        model.compile(loss=tf.keras.losses.Huber(),
                       optimizer='adam')
 
         return model
