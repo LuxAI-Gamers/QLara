@@ -4,7 +4,8 @@ import random
 from kaggle_environments import make
 from IPython.display import clear_output
 
-from lux.game import Game
+from luxai2021.game.game import Game
+from luxai2021.game.constants import LuxMatchConfigs_Default
 from clarai import Clara
 
 
@@ -13,7 +14,7 @@ def agent(observation):
 
     ### Do not edit ###
     if observation["step"] == 0:
-        game_state = Game()
+        game_state = Game(LuxMatchConfigs_Default)
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
