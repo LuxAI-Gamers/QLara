@@ -32,6 +32,4 @@ WORKDIR /root
 COPY ./requirements_cpu.txt .
 RUN pip install -r requirements_cpu.txt
 
-ADD . .
-
-ENTRYPOINT [ "python", "train.py"]
+ENTRYPOINT ["jupyter notebook --ip=0.0.0.0 --allow-root"]
