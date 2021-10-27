@@ -43,14 +43,14 @@ def convert_to_proper_type(str_v):
 
 
 configuration = {
-    'lr': 0.5,
+    'lr': 0.1,
     'gamma': 0.95,
-    'epsilon': 0.5,
-    'epsilon_final': 0.01,
+    'epsilon': 0.9,
+    'epsilon_final': 0.1,
     'epsilon_decay': 0.995,
     'batch_length': 12,
     'epochs': 1,
-    'episodes': 1000,
+    'episodes': 10000,
     'model_dir': './models',
     'games_dir': './games'
 }
@@ -90,7 +90,7 @@ if __name__ == '__main__':
                                   "height": 12},
                    debug=True)
 
-        env.run([agent, "simple_agent"])
+        env.run([agent, agent])
 
         # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
