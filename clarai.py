@@ -156,9 +156,10 @@ class Clara():
         #r = np.array(r).reshape(h, w, 1)
         #r = 2 * r / r.max() - 1
 
+        resource_map = {"wood":1, "coal":2, "uranium":3}
         r = [
             [0 if game_state.map.map[j][i].resource is None
-             else game_state.map.map[j][i].resource.type
+             else resource_map[game_state.map.map[j][i].resource.type]
              for i in range(h)] for j in range(w)
         ]
 
