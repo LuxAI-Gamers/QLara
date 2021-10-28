@@ -15,6 +15,9 @@ configuration = {
     'episodes': 25
 }
 
+episodes = configuration.pop('episodes')
+
+clara = Clara(**configuration)
 
 def agent(observation):
     global game_state, clara
@@ -43,10 +46,6 @@ if __name__ == '__main__':
     import random
     from kaggle_environments import make
     from IPython.display import clear_output
-
-    episodes = configuration.pop('episodes')
-
-    clara = Clara(**configuration)
 
     for ep in range(episodes):
         clear_output()

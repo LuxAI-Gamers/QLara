@@ -27,7 +27,7 @@
           "episodes": "10000",
           "model_dir": "/opt/ml/model/models",
           "games_dir": "/opt/ml/model/games",
-          "lr": "0.02",
+          "lr": "0.01",
           "gamma": "0.95",
           "epsilon": "0.95",
           "epsilon_final": "0.5",

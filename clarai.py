@@ -84,7 +84,7 @@ class Clara():
         output_shape = len(self.C_ACTIONS + self.W_ACTIONS)
         x = self.get_env_state()
         y = np.zeros((x.shape[0], x.shape[1], output_shape))
-                    
+
         if self._epsilon>self._epsilon_final:
             self._epsilon = self._epsilon*self._epsilon_decay
 
@@ -127,8 +127,7 @@ class Clara():
         new_y = self._reward.update(self._new_state,
                                     self._old_state)
 
-        if self._old_state['game_state'].turn == 40:
-        #if len(self._reward._memory) >= self._batch_length:
+        if len(self._reward._memory) >= self._batch_length:
             x_batch, y_batch = self._reward.get_batch()
             x_batch, y_batch = self._data_augmentor.get_batch(x_batch, y_batch)
             self._reward.init()
@@ -149,14 +148,20 @@ class Clara():
         w, h = game_state.map.width, game_state.map.height
 
         # MAP RESOURCES
+        #r = [
+        #    [0 if game_state.map.map[i][j].resource is None
+        #     else game_state.map.map[i][j].resource.amount
+        #     for i in range(w)] for j in range(h)
+        #]
+        #r = np.array(r).reshape(h, w, 1)
+        #r = 2 * r / r.max() - 1
+
         r = [
-            [0 if game_state.map.map[i][j].resource is None
-             else game_state.map.map[i][j].resource.amount
-             for i in range(w)] for j in range(h)
+            [0 if game_state.map.map[j][i].resource is None
+             else game_state.map.map[j][i].resource.type
+             for i in range(h)] for j in range(w)
         ]
 
-        r = np.array(r).reshape(h, w, 1)
-        r = 2 * r / r.max() - 1
 
         # MAP UNITS
         shape = (w, h, 6)
