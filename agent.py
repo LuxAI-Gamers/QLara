@@ -6,13 +6,13 @@ from clarai import Clara
 
 configuration = {
     'lr': 0.01,
-    'gamma': 0.95,
-    'epsilon': 0.95,
-    'epsilon_final': 0.01,
+    'gamma': 0.9,
+    'epsilon': 0.9,
+    'epsilon_final': 0.5,
     'epsilon_decay': 0.995,
-    'batch_length': 12,
-    'epochs': 1,
-    'episodes': 25
+    'batch_length': 1,
+    'epochs': 0,
+    'episodes': 0
 }
 
 episodes = configuration.pop('episodes')
@@ -28,7 +28,7 @@ def agent(observation):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
-        # clara._model.load('models/1632520074/')
+        clara._model.load('models')
         clara.init_memory(game_state, observation)
         actions = []
     else:

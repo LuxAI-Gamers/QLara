@@ -135,7 +135,8 @@ class BatchReward(Reward):
     def get_batch(self):
 
         first_state = self._memory[0][0]
-        last_state = self._memory[-1][-1]
+        last_state = self._memory[-1][1]
+
         batch_reward = self.reward_function(first_state, last_state)
 
         x_batch = []

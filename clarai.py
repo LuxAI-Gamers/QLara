@@ -65,9 +65,6 @@ class Clara():
         # UPDATE PREVIOUS STATE
         self.update_memory(x, y, actions)
 
-        # LEARN FROM THE LAST REWARD
-        self.learn()
-
         return actions
 
     def init_memory(self, game_state, observation):
@@ -96,11 +93,15 @@ class Clara():
     def update_memory(self, x, y, actions):
         """
         Update memory
-        """
+v        """
 
         self._new_state['x'] = x
         self._new_state['y'] = y
         self._new_state['actions'] = actions
+
+        # LEARN FROM THE LAST REWARD
+        self.learn()
+
         self._old_state = self._new_state
 
     def think(self, x):
