@@ -90,7 +90,7 @@ if __name__ == '__main__':
                                   "height": 12},
                    debug=True)
 
-        env.run([agent, agent])
+        env.run([agent, "simple_agent"])
 
         # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
