@@ -141,6 +141,10 @@ class BatchReward(Reward):
 
         x_batch = []
         y_batch = []
+
+        if batch_reward==0:
+            return x_batch, y_batch
+
         for new_state, old_state in self._memory:
 
             old_x = old_state['x']
@@ -154,12 +158,12 @@ class BatchReward(Reward):
 
             fix_y = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
-
             fix_y = (1 - self._lr) * old_y + self._lr * fix_y
+
+#            print("reward",batch_reward)
+#            print("actions_corrected", np.argmax(fix_y, axis=2))
 
             x_batch.append(old_x)
             y_batch.append(fix_y)
-
-        self._memory = []
 
         return x_batch, y_batch

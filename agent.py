@@ -4,12 +4,23 @@ from lux.game import Game
 
 from clarai import Clara
 
-configuration = {
+configuration_train = {
     'lr': 0.01,
     'gamma': 0.9,
     'epsilon': 0.9,
     'epsilon_final': 0.5,
     'epsilon_decay': 0.995,
+    'batch_length': 1,
+    'epochs': 0,
+    'episodes': 0
+}
+
+configuration = {
+    'lr': 1.0,
+    'gamma': 0.0,
+    'epsilon': 1.0,
+    'epsilon_final': 0.0,
+    'epsilon_decay': 1,
     'batch_length': 1,
     'epochs': 0,
     'episodes': 0
