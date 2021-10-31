@@ -212,6 +212,7 @@ v        """
 
 #            print("unit", unit.pos.y, unit.pos.x)
 #        print("best_actions_map", best_actions_map)
+#        print("best_actions_map", best_actions_map[unit.pos.y,unit.pos.x])
 
         # GET BEST CITY ACTION
         best_actions_map = np.argmax(y_city, axis=2)

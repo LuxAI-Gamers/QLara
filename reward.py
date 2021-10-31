@@ -105,13 +105,11 @@ class BatchReward(Reward):
     def correct_old_prediction(self, new_state, old_state, reward):
 
         old_y = old_state['y']
-        new_y = new_state['y']
-
         game_state = old_state['game_state']
         observation = old_state['observation']
 
-        y_unit = new_y[:, :, 0:len(self.W_ACTIONS)]
-        y_city = new_y[:, :, len(self.W_ACTIONS):-1]
+        y_unit = old_y[:, :, 0:len(self.W_ACTIONS)]
+        y_city = old_y[:, :, len(self.W_ACTIONS):-1]
 
         player = game_state.players[observation.player]
 
@@ -158,10 +156,11 @@ class BatchReward(Reward):
 
             fix_y = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
-            fix_y = (1 - self._lr) * old_y + self._lr * fix_y
 
 #            print("reward",batch_reward)
 #            print("actions_corrected", np.argmax(fix_y, axis=2))
+
+            fix_y = (1 - self._lr) * old_y + self._lr * fix_y
 
             x_batch.append(old_x)
             y_batch.append(fix_y)
