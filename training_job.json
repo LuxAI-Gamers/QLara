@@ -33,7 +33,7 @@
           "epsilon_final": "0.5",
           "epsilon_decay": "0.995",
           "batch_length": "8",
-          "epoch": "2"
+          "epochs": "2"
         },
         "AlgorithmSpecification": {
           "TrainingImage.$": "States.Format('721396535024.dkr.ecr.us-east-1.amazonaws.com/lux-clarai:{}', $.experiment_name)",
