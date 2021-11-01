@@ -44,13 +44,13 @@ def convert_to_proper_type(str_v):
 
 
 configuration = {
-    'lr': 0.1,
+    'lr': 0.2,
     'gamma': 0.95,
-    'epsilon': 0.9,
+    'epsilon': 1,
     'epsilon_final': 0.1,
     'epsilon_decay': 0.995,
     'batch_length': 12,
-    'epochs': 1,
+    'epochs': 2,
     'episodes': 10000,
     'model_dir': './models',
     'games_dir': './games'
