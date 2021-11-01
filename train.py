@@ -1,11 +1,12 @@
 import os
 import json
-import random
+
+
 from kaggle_environments import make
 from IPython.display import clear_output
 
 from lux.game import Game
-from clarai import Clara
+from src.clarai import Clara
 
 
 def agent(observation):

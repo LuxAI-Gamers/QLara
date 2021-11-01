@@ -1,13 +1,13 @@
-from reward import BatchReward
-from model import QLModel
-from data_augmentor import DataAugmentor
-import math
-import sys
 import random
 
 import numpy as np
 from lux.constants import Constants
 from lux.game_constants import GAME_CONSTANTS
+
+from .reward import BatchReward
+from .model import QLModel
+from .data_augmentor import DataAugmentor
+
 
 DIRECTIONS = Constants.DIRECTIONS
 
