@@ -1,0 +1,6 @@
+jupyter==1.0.0
+nbconvert==6.0.7
+prompt-toolkit==1.0.15
+kaggle-environments==1.8.12
+tensorflow==2.6.0
+tensorflow-hub==0.12.0
