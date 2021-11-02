@@ -20,12 +20,13 @@ class QLModel():
 
         self._output_shape = output_shape
         self._models = {}
+        self._loss = {}
         for dim in [32, 24, 16, 12]:
             inputs = tf.keras.Input(shape=(dim, dim, 11),
                                     name='Game map')
 
             self._models[dim] = self.build_network(inputs)
-
+        
     def build_network(self, inputs):
 
         # Inception
@@ -88,13 +89,16 @@ class QLModel():
         return partial(inception_function, f1=f1, f2=f2, f3=f3, f4=f4)
 
     def fit(self, x, y, epochs=1):
-
+        
         dim = x[0].shape[0]
         self._models[dim].fit(np.array(x),
                               np.array(y),
                               epochs=epochs,
                               verbose=0,
                               callbacks=[CustomCallback()])
+
+        if self._models[dim].history is not None:                 
+            self._loss[dim] = self._models[dim].history.history['loss']
 
     def predict(self, x):
         dim = x.shape[0]

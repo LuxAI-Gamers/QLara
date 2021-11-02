@@ -1,6 +1,6 @@
 import os
 import json
-
+from random import randrange
 
 from kaggle_environments import make
 from IPython.display import clear_output
@@ -78,21 +78,23 @@ if __name__ == '__main__':
 
     # Create Clarai agent with configuration
     clara = Clara(**configuration)
+    dim = 12
+    seed = 7
 
     # Play and learn
     for ep in range(episodes):
         clear_output()
         print(f"==== Episode {ep} ====")
         env = make("lux_ai_2021",
-                   configuration={"seed": 7,
+                   configuration={"seed": seed,
                                   "loglevel": 1,
                                   "annotations": True,
-                                  "width": 12,
-                                  "height": 12},
+                                  "width": dim,
+                                  "height": dim},
                    debug=True)
 
         env.run([agent, "simple_agent"])
-
+        
         # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
         winner = max(rewards)
@@ -107,6 +109,10 @@ if __name__ == '__main__':
         ]
         for row in table_data:
             print("{}{};".format(*row))
+
+        # Change seed if loss too low
+        if clara._model._loss[dim][-1] < 0.1:
+            seed = randrange(9999999)
 
         # Save model in this episodes:
         episodes_to_save = [
