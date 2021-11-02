@@ -41,9 +41,26 @@ class BatchReward(Reward):
         old_reward = old_state['observation']['reward']
         new_reward = new_state['observation']['reward']
 
-        reward = new_reward / old_reward - 1 if old_reward != 0 else 0.1
+        reward = 1 if new_reward >= old_reward else -0.2
+        reward = 0 if new_reward == old_reward else reward
+
+        #game_state = new_state['game_state']
+        #observation = new_state['observation']
+
+        #player = game_state.players[observation.player]
+        #opponent = game_state.players[(observation.player + 1) % 2]
+
+        #r_player = sum([len(city.citytiles) for city in player.cities.values()])
+        #r_opponent = sum([len(city.citytiles) for city in opponent.cities.values()])
+
+        #r_player = r_player*10 + len(player.units)
+        #r_opponent = r_player*10 + len(opponent.units)
+
+        #reward = 1 if r_player >= r_opponent else -0.2
+        #reward = 0 if r_player == r_opponent else reward
 
         return reward
+
 
     def validate_actions(self, new_state, old_state, reward):
 
@@ -58,7 +75,9 @@ class BatchReward(Reward):
         old_player = old_game_state.players[old_observation.player]
         new_player = new_game_state.players[new_observation.player]
 
-        units_that_acted = [action.split(' ')[1] for action in actions]
+        units_that_acted = [a for a in actions if 'u_' in a]
+        units_that_acted = [a.split(' ')[1] for a in units_that_acted]
+
         for new_unit in new_player.units:
             for old_unit in old_player.units:
                 if new_unit.id == old_unit.id and \
@@ -71,21 +90,26 @@ class BatchReward(Reward):
                     if new_unit.id in units_that_acted:
                         reward[new_unit.pos.y, new_unit.pos.x] = -1
 
+        cities_that_acted = [a for a in actions if a[0:2] in ['bw','r ']]
+        cities_that_acted = [[int(a.split(' ')[2]), int(a.split(' ')[1])]
+                              for a in cities_that_acted]
+
+        for city in new_player.cities.values():
+            for citytile in city.citytiles:
+                if citytile.cooldown==0:
+                    if [citytile.pos.y, citytile.pos.x] in cities_that_acted:
+                        reward[citytile.pos.y, citytile.pos.x] = -1
         return reward
+
 
     def correct_old_prediction(self, new_state, old_state, reward):
 
-        old_x = old_state['x']
         old_y = old_state['y']
-
-        new_x = new_state['x']
-        new_y = new_state['y']
-
         game_state = old_state['game_state']
         observation = old_state['observation']
 
-        y_unit = new_y[:, :, 0:len(self.W_ACTIONS)]
-        y_city = new_y[:, :, len(self.W_ACTIONS):-1]
+        y_unit = old_y[:, :, 0:len(self.W_ACTIONS)]
+        y_city = old_y[:, :, len(self.W_ACTIONS):-1]
 
         player = game_state.players[observation.player]
 
@@ -109,11 +133,16 @@ class BatchReward(Reward):
     def get_batch(self):
 
         first_state = self._memory[0][0]
-        last_state = self._memory[-1][-1]
+        last_state = self._memory[-1][1]
+
         batch_reward = self.reward_function(first_state, last_state)
 
         x_batch = []
         y_batch = []
+
+        if batch_reward==0:
+            return x_batch, y_batch
+
         for new_state, old_state in self._memory:
 
             old_x = old_state['x']
@@ -121,16 +150,19 @@ class BatchReward(Reward):
             new_y = new_state['y']
 
             reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
-            reward_matrix = self.validate_actions(
-                new_state, old_state, reward_matrix)
-            reward_matrix = self.correct_old_prediction(
+
+#            reward_matrix = self.validate_actions(
+#                new_state, old_state, reward_matrix)
+
+            fix_y = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
 
-            reward_matrix = (1 - self._lr) * new_y + self._lr * reward_matrix
+#            print("reward",batch_reward)
+#            print("actions_corrected", np.argmax(fix_y, axis=2))
+
+            fix_y = (1 - self._lr) * old_y + self._lr * fix_y
 
             x_batch.append(old_x)
-            y_batch.append(reward_matrix)
-
-        self._memory = []
+            y_batch.append(fix_y)
 
         return x_batch, y_batch

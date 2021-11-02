@@ -1,11 +1,12 @@
 import os
 import json
-import random
+
+
 from kaggle_environments import make
 from IPython.display import clear_output
 
 from lux.game import Game
-from clarai import Clara
+from src.clarai import Clara
 
 
 def agent(observation):
@@ -29,15 +30,28 @@ def agent(observation):
     return actions
 
 
+def convert_to_proper_type(str_v):
+    '''
+    Receive a string variable and return it as float, integer or string.
+    '''
+    try:
+        float_v = float(str_v)
+        int_v = int(float_v)
+    except:
+        return str_v  
+    if (float_v == int_v): return int_v
+    return float_v
+
+
 configuration = {
-    'lr': 0.01,
+    'lr': 0.2,
     'gamma': 0.95,
-    'epsilon': 0.95,
-    'epsilon_final': 0.01,
+    'epsilon': 1,
+    'epsilon_final': 0.1,
     'epsilon_decay': 0.995,
     'batch_length': 12,
-    'epochs': 1,
-    'episodes': 1,
+    'epochs': 2,
+    'episodes': 10000,
     'model_dir': './models',
     'games_dir': './games'
 }
@@ -49,7 +63,10 @@ if __name__ == '__main__':
         with open('/opt/ml/input/config/hyperparameters.json', 'r') as f:
             sagemaker_args = json.load(f)
 
+        # Update values with sagemakers hyperparameters
         configuration.update(sagemaker_args)
+        # Convert hyperparameters from string to their proper type
+        configuration = {k: convert_to_proper_type(v) for k, v in configuration.items()}
 
     print(f'Training configuration: {configuration}')
 
@@ -67,19 +84,22 @@ if __name__ == '__main__':
         clear_output()
         print(f"==== Episode {ep} ====")
         env = make("lux_ai_2021",
-                   configuration={"seed": random.randint(0, 99999999),
+                   configuration={"seed": 7,
                                   "loglevel": 1,
-                                  "annotations": True},
+                                  "annotations": True,
+                                  "width": 12,
+                                  "height": 12},
                    debug=True)
 
         env.run([agent, "simple_agent"])
 
         # Print metrics
         rewards = [env.state[0]['reward'], env.state[1]['reward']]
+        winner = max(rewards)
         table_data = [
             ['id::', env.id],
             ['seed::', env.configuration.seed],
-            #['winner::', rewards.index(max(rewards))],
+            ['winner::', rewards.index(winner)],
             ['board::', env.steps[0][0]['observation']['width']],
             ['rounds::', len(env.steps)],
             ['units::', env.steps[-1][0]['observation']['globalUnitIDCount']],

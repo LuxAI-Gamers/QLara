@@ -4,17 +4,31 @@ from lux.game import Game
 
 from clarai import Clara
 
-configuration = {
+configuration_train = {
     'lr': 0.01,
-    'gamma': 0.95,
-    'epsilon': 0.95,
-    'epsilon_final': 0.01,
+    'gamma': 0.9,
+    'epsilon': 0.9,
+    'epsilon_final': 0.5,
     'epsilon_decay': 0.995,
-    'batch_length': 12,
-    'epochs': 1,
-    'episodes': 25
+    'batch_length': 1,
+    'epochs': 0,
+    'episodes': 0
 }
 
+configuration = {
+    'lr': 1.0,
+    'gamma': 0.0,
+    'epsilon': 1.0,
+    'epsilon_final': 0.0,
+    'epsilon_decay': 1,
+    'batch_length': 1,
+    'epochs': 0,
+    'episodes': 0
+}
+
+episodes = configuration.pop('episodes')
+
+clara = Clara(**configuration)
 
 def agent(observation):
     global game_state, clara
@@ -25,7 +39,7 @@ def agent(observation):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
-        # clara._model.load('models/1632520074/')
+        clara._model.load('models')
         clara.init_memory(game_state, observation)
         actions = []
     else:
@@ -43,10 +57,6 @@ if __name__ == '__main__':
     import random
     from kaggle_environments import make
     from IPython.display import clear_output
-
-    episodes = configuration['episodes'].pop('episodes')
-
-    clara = Clara(**configuration)
 
     for ep in range(episodes):
         clear_output()
