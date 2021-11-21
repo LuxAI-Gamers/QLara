@@ -4,15 +4,15 @@ import numpy as np
 from lux.constants import Constants
 from lux.game_constants import GAME_CONSTANTS
 
-from .reward import BatchReward
 from .model import QLModel
+from .reward import BatchReward
 from .data_augmentor import DataAugmentor
 
 
 DIRECTIONS = Constants.DIRECTIONS
 
 
-class Clara():
+class QLara():
 
     C_ACTIONS = [
         lambda x: x.build_worker(),
@@ -95,7 +95,7 @@ class Clara():
     def update_memory(self, x, y, actions):
         """
         Update memory
-v        """
+        """
 
         self._new_state['x'] = x
         self._new_state['y'] = y
@@ -209,10 +209,6 @@ v        """
             idx = best_actions_map[unit.pos.y, unit.pos.x]
             if unit.can_act():
                 actions.append(self.W_ACTIONS[idx](unit))
-
-#            print("unit", unit.pos.y, unit.pos.x)
-#        print("best_actions_map", best_actions_map)
-#        print("best_actions_map", best_actions_map[unit.pos.y,unit.pos.x])
 
         # GET BEST CITY ACTION
         best_actions_map = np.argmax(y_city, axis=2)

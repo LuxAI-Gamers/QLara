@@ -27,7 +27,7 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 ### Install Lux AI ###
 RUN npm i -g @lux-ai/2021-challenge@latest
 
-### ClarAI setup ###
+### QLarAI setup ###
 WORKDIR /root
 COPY ./requirements_cpu.txt .
 RUN pip install -r requirements_cpu.txt

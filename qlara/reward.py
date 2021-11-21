@@ -44,21 +44,6 @@ class BatchReward(Reward):
         reward = 1 if new_reward >= old_reward else -0.2
         reward = 0 if new_reward == old_reward else reward
 
-        #game_state = new_state['game_state']
-        #observation = new_state['observation']
-
-        #player = game_state.players[observation.player]
-        #opponent = game_state.players[(observation.player + 1) % 2]
-
-        #r_player = sum([len(city.citytiles) for city in player.cities.values()])
-        #r_opponent = sum([len(city.citytiles) for city in opponent.cities.values()])
-
-        #r_player = r_player*10 + len(player.units)
-        #r_opponent = r_player*10 + len(opponent.units)
-
-        #reward = 1 if r_player >= r_opponent else -0.2
-        #reward = 0 if r_player == r_opponent else reward
-
         return reward
 
 
@@ -151,14 +136,11 @@ class BatchReward(Reward):
 
             reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
 
-#            reward_matrix = self.validate_actions(
-#                new_state, old_state, reward_matrix)
+            reward_matrix = self.validate_actions(
+                new_state, old_state, reward_matrix)
 
             fix_y = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
-
-#            print("reward",batch_reward)
-#            print("actions_corrected", np.argmax(fix_y, axis=2))
 
             fix_y = (1 - self._lr) * old_y + self._lr * fix_y
 

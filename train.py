@@ -6,7 +6,7 @@ from kaggle_environments import make
 from IPython.display import clear_output
 
 from lux.game import Game
-from src.clarai import Clara
+from qlara import QLara
 
 
 def agent(observation):

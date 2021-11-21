@@ -28,7 +28,7 @@ configuration = {
 
 episodes = configuration.pop('episodes')
 
-clara = Clara(**configuration)
+qlara = QLara(**configuration)
 
 def agent(observation):
     global game_state, clara
@@ -39,14 +39,14 @@ def agent(observation):
         game_state._initialize(observation["updates"])
         game_state._update(observation["updates"][2:])
         game_state.id = observation.player
-        clara._model.load('models')
-        clara.init_memory(game_state, observation)
+        qlara._model.load('qlara/models')
+        qlara.init_memory(game_state, observation)
         actions = []
     else:
         game_state._update(observation["updates"])
 
         ### AI Code goes down here! ###
-        actions = clara.play(game_state, observation)
+        actions = qlara.play(game_state, observation)
 
     return actions
 
