@@ -46,7 +46,6 @@ class BatchReward(Reward):
 
         return reward
 
-
     def validate_actions(self, new_state, old_state, reward):
 
         actions = old_state['actions']
@@ -75,17 +74,16 @@ class BatchReward(Reward):
                     if new_unit.id in units_that_acted:
                         reward[new_unit.pos.y, new_unit.pos.x] = -1
 
-        cities_that_acted = [a for a in actions if a[0:2] in ['bw','r ']]
+        cities_that_acted = [a for a in actions if a[0:2] in ['bw', 'r ']]
         cities_that_acted = [[int(a.split(' ')[2]), int(a.split(' ')[1])]
-                              for a in cities_that_acted]
+                             for a in cities_that_acted]
 
         for city in new_player.cities.values():
             for citytile in city.citytiles:
-                if citytile.cooldown==0:
+                if citytile.cooldown == 0:
                     if [citytile.pos.y, citytile.pos.x] in cities_that_acted:
                         reward[citytile.pos.y, citytile.pos.x] = -1
         return reward
-
 
     def correct_old_prediction(self, new_state, old_state, reward):
 
@@ -125,7 +123,7 @@ class BatchReward(Reward):
         x_batch = []
         y_batch = []
 
-        if batch_reward==0:
+        if batch_reward == 0:
             return x_batch, y_batch
 
         for new_state, old_state in self._memory:

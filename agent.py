@@ -30,6 +30,7 @@ episodes = configuration.pop('episodes')
 
 qlara = QLara(**configuration)
 
+
 def agent(observation):
     global game_state, clara
 

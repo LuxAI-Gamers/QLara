@@ -37,9 +37,10 @@ def convert_to_proper_type(str_v):
     try:
         float_v = float(str_v)
         int_v = int(float_v)
-    except:
-        return str_v  
-    if (float_v == int_v): return int_v
+    except BaseException:
+        return str_v
+    if (float_v == int_v):
+        return int_v
     return float_v
 
 
@@ -66,7 +67,9 @@ if __name__ == '__main__':
         # Update values with sagemakers hyperparameters
         configuration.update(sagemaker_args)
         # Convert hyperparameters from string to their proper type
-        configuration = {k: convert_to_proper_type(v) for k, v in configuration.items()}
+        configuration = {
+            k: convert_to_proper_type(v) for k,
+            v in configuration.items()}
 
     print(f'Training configuration: {configuration}')
 

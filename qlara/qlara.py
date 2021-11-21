@@ -84,8 +84,8 @@ class QLara():
         x = self.get_env_state()
         y = np.zeros((x.shape[0], x.shape[1], output_shape))
 
-        if self._epsilon>self._epsilon_final:
-            self._epsilon = self._epsilon*self._epsilon_decay
+        if self._epsilon > self._epsilon_final:
+            self._epsilon = self._epsilon * self._epsilon_decay
 
         self._new_state['x'] = x
         self._new_state['y'] = y
@@ -132,8 +132,9 @@ class QLara():
 
         if len(self._reward._memory) >= self._batch_length:
             x_batch, y_batch = self._reward.get_batch()
-            if x_batch!=[] and y_batch!=[]:
-                x_batch, y_batch = self._data_augmentor.get_batch(x_batch, y_batch)
+            if x_batch != [] and y_batch != []:
+                x_batch, y_batch = self._data_augmentor.get_batch(
+                    x_batch, y_batch)
                 self._model.fit(x_batch, y_batch, epochs=self._epochs)
             self._reward.init()
 
@@ -151,13 +152,12 @@ class QLara():
         # MAP SHAPE
         w, h = game_state.map.width, game_state.map.height
 
-        resource_map = {"wood":1, "coal":2, "uranium":3}
+        resource_map = {"wood": 1, "coal": 2, "uranium": 3}
         r = [
             [0 if game_state.map.map[j][i].resource is None
              else resource_map[game_state.map.map[j][i].resource.type]
              for i in range(h)] for j in range(w)
         ]
-
 
         # MAP UNITS
         capacity = GAME_CONSTANTS["PARAMETERS"]["RESOURCE_CAPACITY"]["WORKER"]
@@ -168,9 +168,9 @@ class QLara():
             u[i.pos.y][i.pos.x] = [i.type,
                                    i.team,
                                    i.cooldown,
-                                   i.cargo.wood/capacity,
-                                   i.cargo.coal/capacity,
-                                   i.cargo.uranium/capacity]
+                                   i.cargo.wood / capacity,
+                                   i.cargo.coal / capacity,
+                                   i.cargo.uranium / capacity]
 
         # CITIES IN MAP
         e = list(player.cities.values())
@@ -182,7 +182,7 @@ class QLara():
             citytiles = city.citytiles
             for i in citytiles:
                 c[i.pos.y][i.pos.x] = [i.cooldown,
-                                       city.fuel/100,
+                                       city.fuel / 100,
                                        city.light_upkeep,
                                        city.team]
 
