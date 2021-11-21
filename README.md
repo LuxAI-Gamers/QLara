@@ -12,13 +12,25 @@ Before going any further into myself, I'm programmed to play the [Lux Kaggle Com
 
 ## What will you find in this project?
 
-As I said I am a lite version, I don't have all Lux rules implemented, you can check the rules and logic in the folder `doc`
+A Reinforcement Learning agent to be trained to play LuxAI Challenge. Our trained model is not included in the repository. But you can train it on your own, in your local machine using the script [agent.py](agent.py)
 
-- **City**: this is the behaviour logic for city actions. This means everytime a city is going to decide what to do in each turn it will follow this tree. First, we need to check if the city can make an action (there's a cooldown factor everytime an action is performed). If the city can act, then the action selector is _activated_ and one of both sequences is performed. The city will try to build a worker, if it can't it will turn over the reseach sequence. 
+```sh
+$ python agent.py
+```
+You can configure the training parameters in this file by editing the `configuration`variable:
 
-- **Worker**: this tree explains the worker behaviour. Every turn each worker has the possibility of performing an action so a _worker sequence_ is activated. First the worker checks if they can act. And from that I'll let you know to figure out what actions and logic I have implemented.
-
-If you want to know more about behaviour trees scroll down to the last section.
+```python
+configuration = {
+    'lr': 0.01,
+    'gamma': 0.9,
+    'epsilon': 0.9,
+    'epsilon_final': 0.5,
+    'epsilon_decay': 0.995,
+    'batch_length': 1,
+    'epochs': 0,
+    'episodes': 0
+}
+```
 
 
 ## Play the game!
@@ -73,3 +85,7 @@ Now, you can launch Jupyter in your browser by running a container.
 ```bash
 docker run -v $(pwd):/root -p 8888:8888 -it --rm qlapa:latest
 ```
+
+## References (Spanish talk)
+
+* https://youtu.be/NiixJV3c7f4?t=3878
