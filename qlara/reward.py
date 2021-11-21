@@ -44,23 +44,7 @@ class BatchReward(Reward):
         reward = 1 if new_reward >= old_reward else -0.2
         reward = 0 if new_reward == old_reward else reward
 
-        #game_state = new_state['game_state']
-        #observation = new_state['observation']
-
-        #player = game_state.players[observation.player]
-        #opponent = game_state.players[(observation.player + 1) % 2]
-
-        #r_player = sum([len(city.citytiles) for city in player.cities.values()])
-        #r_opponent = sum([len(city.citytiles) for city in opponent.cities.values()])
-
-        #r_player = r_player*10 + len(player.units)
-        #r_opponent = r_player*10 + len(opponent.units)
-
-        #reward = 1 if r_player >= r_opponent else -0.2
-        #reward = 0 if r_player == r_opponent else reward
-
         return reward
-
 
     def validate_actions(self, new_state, old_state, reward):
 
@@ -90,17 +74,16 @@ class BatchReward(Reward):
                     if new_unit.id in units_that_acted:
                         reward[new_unit.pos.y, new_unit.pos.x] = -1
 
-        cities_that_acted = [a for a in actions if a[0:2] in ['bw','r ']]
+        cities_that_acted = [a for a in actions if a[0:2] in ['bw', 'r ']]
         cities_that_acted = [[int(a.split(' ')[2]), int(a.split(' ')[1])]
-                              for a in cities_that_acted]
+                             for a in cities_that_acted]
 
         for city in new_player.cities.values():
             for citytile in city.citytiles:
-                if citytile.cooldown==0:
+                if citytile.cooldown == 0:
                     if [citytile.pos.y, citytile.pos.x] in cities_that_acted:
                         reward[citytile.pos.y, citytile.pos.x] = -1
         return reward
-
 
     def correct_old_prediction(self, new_state, old_state, reward):
 
@@ -140,7 +123,7 @@ class BatchReward(Reward):
         x_batch = []
         y_batch = []
 
-        if batch_reward==0:
+        if batch_reward == 0:
             return x_batch, y_batch
 
         for new_state, old_state in self._memory:
@@ -151,14 +134,11 @@ class BatchReward(Reward):
 
             reward_matrix = batch_reward + self._gamma * np.amax(old_y, axis=2)
 
-#            reward_matrix = self.validate_actions(
-#                new_state, old_state, reward_matrix)
+            reward_matrix = self.validate_actions(
+                new_state, old_state, reward_matrix)
 
             fix_y = self.correct_old_prediction(
                 new_state, old_state, reward_matrix)
-
-#            print("reward",batch_reward)
-#            print("actions_corrected", np.argmax(fix_y, axis=2))
 
             fix_y = (1 - self._lr) * old_y + self._lr * fix_y
 

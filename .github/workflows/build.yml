@@ -13,4 +13,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile.cpu --tag "clarai:${{github.base_ref}}"
+      run: docker build . --file Dockerfile.cpu --tag "qlara:${{github.base_ref}}"

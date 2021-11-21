@@ -3,7 +3,7 @@
 Hello everyone! My name is QLara. I am a LuxAI agent gamer based in Reinforcement Learning. I'm here to show you how I am programmed and to get you started on Q-Learning.
 
 <p align="center">
-  <img width="400" src="avatar/clara_400px.jpg">
+  <img width="400" src="img/avatar/clara_400px.jpg">
 </p>
 
 
