@@ -2,7 +2,7 @@ import random
 
 from lux.game import Game
 
-from clarai import Clara
+from qlara import QLara
 
 configuration_train = {
     'lr': 0.01,
