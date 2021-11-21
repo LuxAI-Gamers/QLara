@@ -66,10 +66,10 @@ Of course, you can ignore all issues with dependencies if you have Docker instal
 
 First, you'll need to build the image.
 ```bash
-docker build -t lucia_lite .
+docker build -t qlara .
 ```
 
 Now, you can launch Jupyter in your browser by running a container.
 ```bash
-docker run -v $(pwd):/root -p 8888:8888 -it --rm lucia_lite:latest
+docker run -v $(pwd):/root -p 8888:8888 -it --rm qlapa:latest
 ```
